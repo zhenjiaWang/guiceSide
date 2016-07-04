@@ -7,6 +7,7 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.guiceside.commons.HSFConfig;
+import org.guiceside.commons.lang.BeanUtils;
 import org.guiceside.commons.lang.ClassUtils;
 import org.guiceside.commons.lang.StringUtils;
 
@@ -55,8 +56,16 @@ public class ServicesContainer {
                                     Class aClass=ClassUtils.getClass(interfaceName);
                                     if(aClass!=null){
                                         serviceMap.put(aClass,id);
+                                        Integer timeout=null;
+                                        if(StringUtils.isNotBlank(clientTimeout)){
+                                            timeout= BeanUtils.convertValue(clientTimeout,Integer.class);
+                                        }
+                                        if(timeout==null){
+                                            timeout=3000;
+                                        }
                                         factory.consumer(id)//参数是一个标识，初始化后，下次只需调用consumer("helloConsumer")即可直接拿出对应服务
                                                 .service(interfaceName)//服务名 &　接口全类名
+                                                .timeout(timeout)
                                                 .version(version)//版本号
                                                 .group(groupId)//组别
                                                 .subscribe();//消费服务并获得服务的接口，至少要调用service()和version()才可以消费服务
@@ -125,8 +134,16 @@ public class ServicesContainer {
                                         Class aClass=ClassUtils.getClass(beanClass);
                                         if(aClass!=null){
                                             Object serviceImp= injector.getInstance(aClass);
+                                            Integer timeout=null;
+                                            if(StringUtils.isNotBlank(clientTimeout)){
+                                                timeout= BeanUtils.convertValue(clientTimeout,Integer.class);
+                                            }
+                                            if(timeout==null){
+                                                timeout=3000;
+                                            }
                                             factory.provider(id)//参数是一个标识，初始化后，下次只需调用provider("helloProvider")即可拿出对应服务
                                                     .service(interfaceName)//服务名 & 接口全类名
+                                                    .clientTimeout(timeout)
                                                     .version(version)//版本号
                                                     .group(groupId)//组别
                                                             // .writeMode("unit",0) //设置单元化服务的writeMode,非unit服务第二个参数随意
