@@ -1,10 +1,10 @@
 package org.guiceside.web.listener;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import com.google.inject.*;
 import com.google.inject.servlet.GuiceServletContextListener;
+import com.squarespace.jersey2.guice.BootstrapUtils;
 import org.apache.log4j.Logger;
+import org.glassfish.hk2.api.ServiceLocator;
 import org.guiceside.GuiceSideConstants;
 import org.guiceside.config.Configuration;
 import org.guiceside.config.ConfigurationManager;
@@ -24,17 +24,22 @@ import java.util.List;
  * @version 1.0 $Date:200808
  * @since JDK1.5
  */
-public class DefaultGuiceSideListener extends GuiceServletContextListener {
+public class JerseyGuiceSideListener extends GuiceServletContextListener {
 
-    private static final Logger log = Logger.getLogger(DefaultGuiceSideListener.class);
+    private static final Logger log = Logger.getLogger(JerseyGuiceSideListener.class);
 
 
     private ServletContext servletContext;
 
     private Configuration webConfiguration;
 
+    protected final ServiceLocator locator;
+
     protected  Injector injector;
 
+    public JerseyGuiceSideListener() {
+        this.locator = BootstrapUtils.newServiceLocator();
+    }
     /**
      * 加载guiceSide.xml
      *
@@ -56,6 +61,11 @@ public class DefaultGuiceSideListener extends GuiceServletContextListener {
         if (log.isDebugEnabled()) {
             log.debug("load guiceSide.xml done");
         }
+        Stage stage = this.stage();
+        List modules = InitGuiceModule.buildModule(webConfiguration);
+        this.injector = BootstrapUtils.newInjector(this.locator, stage, modules);
+        BootstrapUtils.install(this.locator);
+
         super.contextInitialized(servletContextEvent);
         InitGuiceModule.startHSF(webConfiguration, injector);
     }
@@ -78,9 +88,6 @@ public class DefaultGuiceSideListener extends GuiceServletContextListener {
         super.contextDestroyed(servletContextEvent);
     }
 
-    protected String getConfigFileName() {
-        return "guiceSide.xml";
-    }
 
     /**
      * 初始化Google Injector
@@ -89,15 +96,19 @@ public class DefaultGuiceSideListener extends GuiceServletContextListener {
      */
     @Override
     public Injector getInjector() {
-        try {
-            List<AbstractModule> guiceModuleList= InitGuiceModule.buildModule(webConfiguration);
-            if(guiceModuleList!=null){
-                this.injector=Guice.createInjector(guiceModuleList);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         return injector;
+    }
+
+    protected Stage stage() {
+        return null;
+    }
+
+    protected String getConfigFileName() {
+        return "guiceSide.xml";
+    }
+
+    public ServiceLocator getServiceLocator() {
+        return this.locator;
     }
 
 

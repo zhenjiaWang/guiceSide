@@ -11,13 +11,13 @@
         <property name="driver_class">com.mysql.jdbc.Driver</property>
         <!-- 连接数据库的URL jdbc:mysql://10.168.8.162:3306/meta -->
         <property name="url">
-            jdbc:mysql://127.0.0.1:3306/MD_HR
+            jdbc:mysql://rdsy467v19300e044l68.mysql.rds.aliyuncs.com:3306/approve?useUnicode=true&amp;characterEncoding=UTF-8
         </property>
         <property name="useUnicode">true</property>
         <property name="characterEncoding">UTF-8</property>
 
         <!--连接的登录名-->
-        <property name="username">root</property>
+        <property name="username">md_bj_dev</property>
 
         <!--登录密码-->
         <property name="password">bjmd2014</property>

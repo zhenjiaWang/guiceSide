@@ -23,11 +23,17 @@ public class SysOrgAction extends BaseAction {
     @ReqGet
     private String name;
 
-    @Inject
-    private HSFServiceFactory hsfServiceFactory;
+//    @Inject
+//    private HSFServiceFactory hsfServiceFactory;
 
     public String execute() throws Exception {
-        hsfServiceFactory.consumer(MyService.class).echo("hello ali edas");
+                List<SysProvince> sysProvinceList= sysProvinceService.getList();
+        if(sysProvinceList!=null&&!sysProvinceList.isEmpty()){
+            for(SysProvince province:sysProvinceList){
+                System.out.println(province.getName());
+            }
+        }
+        //hsfServiceFactory.consumer(MyService.class).echo("hello ali edas");
 //
         return "success";
     }
