@@ -5,10 +5,6 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
-import javax.servlet.ServletContext;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 /**
  * Created by wangjia on 14-7-14.
  */
@@ -21,12 +17,10 @@ public class RedisStoreUtils {
      */
     private static final int PORT = 6379;
 
-    static final ThreadLocal<JedisPool> localPool = new ThreadLocal<JedisPool>();
+    static  JedisPool pool=null;
 
     public static void init(PropertiesConfig webConfig, String dbType) {
-        JedisPool pool = null;
         if (pool != null) {
-            localPool.set(pool);
             return;
         }
         if (webConfig != null) {
@@ -42,21 +36,13 @@ public class RedisStoreUtils {
 
             config.setTestOnReturn(false);
             pool = new JedisPool(config, webConfig.getString(dbType + "_HOST"), PORT, 10000, webConfig.getString(dbType + "_PWD"));
-            localPool.set(pool);
         }
     }
 
-    public static JedisPool get() {
-        JedisPool pool = localPool.get();
-        if (pool != null) {
-            return pool;
-        }
-        return null;
+    public static JedisPool getPool() {
+        return pool;
     }
-
-
     public static void destroy() {
-        JedisPool pool = localPool.get();
         if (pool != null) {
             pool.destroy();
         }
