@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>oa-vue</title>
+  </head>
+  <body>
+  <input type='button' value='开始测试' onclick='crossDomainRequest()' />
+  <div id="content"></div>
+
+  <script type="text/javascript">
+    //<![CDATA[
+    var xhr = new XMLHttpRequest();
+    var url = 'http://localhost:8081/api/oauth2/sayHello';
+    function crossDomainRequest() {
+      document.getElementById("content").innerHTML = "开始……";
+      if (xhr) {
+        xhr.open('POST', url, true);
+        xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+        xhr.onreadystatechange = handler;
+        xhr.send("name=Bill");
+      } else {
+        document.getElementById("content").innerHTML = "不能创建 XMLHttpRequest";
+      }
+    }
+
+    function handler(evtXHR) {
+      if (xhr.readyState == 4) {
+        if (xhr.status == 200) {
+          var response = xhr.responseText;
+          document.getElementById("content").innerHTML = "结果：" + response;
+        } else {
+          document.getElementById("content").innerHTML = "不允许跨域请求。";
+        }
+      }
+      else {
+        document.getElementById("content").innerHTML += "<br/>执行状态 readyState：" + xhr.readyState;
+      }
+    }
+    //]]>
+  </script>
+
+  </body>
+</html>

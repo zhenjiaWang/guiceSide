@@ -10,10 +10,11 @@
             <param-name>jersey.config.server.provider.packages</param-name>
             <param-value>restful.oa.mingdao.com</param-value>
         </init-param>
-        <!--<init-param>-->
-            <!--<param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>-->
-            <!--<param-value>true</param-value>-->
-        <!--</init-param>-->
+        <init-param>
+            <param-name>javax.ws.rs.Application</param-name>
+            <param-value>org.guiceside.support.jersey.CustomApplication</param-value>
+        </init-param>
+
         <load-on-startup>1</load-on-startup>
     </servlet>
 
