@@ -60,8 +60,10 @@ public class ConnectManagerInterceptor implements MethodInterceptor {
 
 	public void beginWork() {
 		if (ManagedSessionContext.hasBind(SessionFactoryHolder
-				.getCurrentSessionFactory()))
+				.getCurrentSessionFactory())){
 			return;
+		}
+
 		Session session = SessionFactoryHolder.getCurrentSessionFactory()
 				.openSession();
 
@@ -71,8 +73,9 @@ public class ConnectManagerInterceptor implements MethodInterceptor {
 	public void endWork() {
 		SessionFactory sessionFactory = SessionFactoryHolder
 				.getCurrentSessionFactory();
-		if (!ManagedSessionContext.hasBind(sessionFactory))
+		if (!ManagedSessionContext.hasBind(sessionFactory)){
 			return;
+		}
 		try {
 			Session session = sessionFactory.getCurrentSession();
 
