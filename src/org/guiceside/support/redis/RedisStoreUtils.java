@@ -5,6 +5,9 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 /**
  * Created by wangjia on 14-7-14.
  */
@@ -19,6 +22,25 @@ public class RedisStoreUtils {
 
     static  JedisPool pool=null;
 
+    private static String getLocalIP(){
+        InetAddress addr = null;
+        try {
+            addr = InetAddress.getLocalHost();
+        } catch (UnknownHostException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        byte[] ipAddr = addr.getAddress();
+        String ipAddrStr = "";
+        for (int i = 0; i < ipAddr.length; i++) {
+            if (i > 0) {
+                ipAddrStr += ".";
+            }
+            ipAddrStr += ipAddr[i] & 0xFF;
+        }
+        return ipAddrStr;
+    }
     public static void init(PropertiesConfig webConfig, String dbType) {
         if (pool != null) {
             return;
@@ -35,7 +57,14 @@ public class RedisStoreUtils {
             config.setTestWhileIdle(false);
 
             config.setTestOnReturn(false);
-            pool = new JedisPool(config, webConfig.getString(dbType + "_HOST"), PORT, 10000, webConfig.getString(dbType + "_PWD"));
+            String severIp=getLocalIP();
+            String serverName=null;
+            if(severIp.startsWith("192.")){
+                serverName="DEV_";
+            }else{
+                serverName="DIS_";
+            }
+            pool = new JedisPool(config, webConfig.getString(serverName+dbType + "_HOST"), PORT, 10000, webConfig.getString(serverName+dbType + "_PWD"));
         }
     }
 

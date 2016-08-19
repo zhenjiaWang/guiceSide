@@ -11,6 +11,8 @@ import org.jongo.MongoCollection;
 import org.jongo.MongoCursor;
 
 import java.io.InputStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -28,36 +30,52 @@ public class MongoManager {
 
     private static final ThreadLocal<Map<String, MongoCollection>> mongoCollectionThreadLocal = new ThreadLocal<Map<String, MongoCollection>>();
 
-    static {
-        InputStream in = MongoManager.class.getClassLoader().getResourceAsStream("webconfig.properties");
-        Properties prop = new Properties();
-        try {
-            prop.load(in);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
 
-
-    }
 
     private MongoManager() {
     }
 
+    private static String getLocalIP(){
+        InetAddress addr = null;
+        try {
+            addr = InetAddress.getLocalHost();
+        } catch (UnknownHostException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        byte[] ipAddr = addr.getAddress();
+        String ipAddrStr = "";
+        for (int i = 0; i < ipAddr.length; i++) {
+            if (i > 0) {
+                ipAddrStr += ".";
+            }
+            ipAddrStr += ipAddr[i] & 0xFF;
+        }
+        return ipAddrStr;
+    }
     public static void init(PropertiesConfig webConfig) {
+        String severIp=getLocalIP();
+        String serverName=null;
+        if(severIp.startsWith("192.")){
+            serverName="DEV_";
+        }else{
+            serverName="DIS_";
+        }
         if (client != null) return;
-        String userName = webConfig.getString("MONGO_userName");
-        String password = webConfig.getString("MONGO_password");
-        String defaultDB = webConfig.getString("MONGO_defaultDb");
+        String userName = webConfig.getString(serverName+"MONGO_userName");
+        String password = webConfig.getString(serverName+"MONGO_password");
+        String defaultDB = webConfig.getString(serverName+"MONGO_defaultDb");
         dbName = defaultDB;
         MongoClientOptions.Builder builder = new MongoClientOptions.Builder();
-        builder.connectionsPerHost(webConfig.getInt("MONGO_connections_per_host"));
-        builder.maxWaitTime(webConfig.getInt("MONGO_max_wait_time"));
-        builder.socketTimeout(webConfig.getInt("MONGO_socket_timeout"));
-        builder.connectTimeout(webConfig.getInt("MONGO_connect_timeout"));
-        builder.threadsAllowedToBlockForConnectionMultiplier(webConfig.getInt("MONGO_threads_allowed_to_block_for_connection_multiplier"));
-        String host1 = webConfig.getString("MONGO_host1");
-        String host2 = webConfig.getString("MONGO_host2");
-        Integer port = webConfig.getInt("MONGO_port");
+        builder.connectionsPerHost(webConfig.getInt(serverName+"MONGO_connections_per_host"));
+        builder.maxWaitTime(webConfig.getInt(serverName+"MONGO_max_wait_time"));
+        builder.socketTimeout(webConfig.getInt(serverName+"MONGO_socket_timeout"));
+        builder.connectTimeout(webConfig.getInt(serverName+"MONGO_connect_timeout"));
+        builder.threadsAllowedToBlockForConnectionMultiplier(webConfig.getInt(serverName+"MONGO_threads_allowed_to_block_for_connection_multiplier"));
+        String host1 = webConfig.getString(serverName+"MONGO_host1");
+        String host2 = webConfig.getString(serverName+"MONGO_host2");
+        Integer port = webConfig.getInt(serverName+"MONGO_port");
         MongoClientURI uri = null;
         if (StringUtils.isNotBlank(host1) && StringUtils.isNotBlank(host2)) {
             ServerAddress seed1 = new ServerAddress(host1, port);
@@ -70,6 +88,7 @@ public class MongoManager {
             ServerAddress sa = new ServerAddress(host1, port);
             uri = new MongoClientURI("mongodb://" + userName + ":" + password + "@" + sa + "/" + defaultDB, builder);
         }
+        System.out.println(serverName);
         System.out.println(userName);
         System.out.println(password);
         System.out.println(defaultDB);
