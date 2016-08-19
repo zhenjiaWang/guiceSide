@@ -70,6 +70,11 @@ public class MongoManager {
             ServerAddress sa = new ServerAddress(host1, port);
             uri = new MongoClientURI("mongodb://" + userName + ":" + password + "@" + sa + "/" + defaultDB, builder);
         }
+        System.out.println(userName);
+        System.out.println(password);
+        System.out.println(defaultDB);
+        System.out.println(host1);
+        System.out.println(host2);
         client = new MongoClient(uri);
     }
 
