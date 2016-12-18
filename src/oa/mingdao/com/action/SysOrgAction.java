@@ -1,6 +1,7 @@
 package oa.mingdao.com.action;
 
 import com.google.inject.Inject;
+import com.taobao.txc.client.aop.TxcTransactionScaner;
 import oa.mingdao.com.entity.SysProvince;
 import oa.mingdao.com.service.SysProvinceService;
 import org.guiceside.support.hsf.HSFServiceFactory;
@@ -28,6 +29,9 @@ public class SysOrgAction extends BaseAction {
 
     public String execute() throws Exception {
                 List<SysProvince> sysProvinceList= sysProvinceService.getList();
+        TxcTransactionScaner txcTransactionScaner=new TxcTransactionScaner("asdads");
+
+
         if(sysProvinceList!=null&&!sysProvinceList.isEmpty()){
             for(SysProvince province:sysProvinceList){
                 System.out.println(province.getName());
