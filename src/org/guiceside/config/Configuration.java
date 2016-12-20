@@ -7,8 +7,10 @@ import org.guiceside.commons.HSFConfig;
 import org.guiceside.guice.strategy.AbstractInterceptorStrategy;
 import org.guiceside.persistence.PersistenceFlavor;
 
+import javax.servlet.Filter;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -63,6 +65,8 @@ public class Configuration implements Serializable {
     private List<AbstractInterceptorStrategy> interceptors;
 
     private List<FilterObj> filterObjList;
+
+    private Map<String,FilterObj> filterObjMap;
 
     public PersistenceFlavor getPersistenceFlavor() {
         return persistenceFlavor;
@@ -192,6 +196,15 @@ public class Configuration implements Serializable {
     public List<FilterObj> getFilterObjList() {
         return filterObjList;
     }
+
+    public Map<String, FilterObj> getFilterObjMap() {
+        return filterObjMap;
+    }
+
+    public void setFilterObjMap(Map<String, FilterObj> filterObjMap) {
+        this.filterObjMap = filterObjMap;
+    }
+
 
     public void setFilterObjList(List<FilterObj> filterObjList) {
         this.filterObjList = filterObjList;

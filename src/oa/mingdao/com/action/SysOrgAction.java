@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.taobao.txc.client.aop.TxcTransactionScaner;
 import oa.mingdao.com.entity.SysProvince;
 import oa.mingdao.com.service.SysProvinceService;
+import org.guiceside.commons.lang.BeanUtils;
 import org.guiceside.support.hsf.HSFServiceFactory;
 import org.guiceside.web.action.BaseAction;
 import org.guiceside.web.annotation.Action;
@@ -25,11 +26,23 @@ public class SysOrgAction extends BaseAction {
     private String name;
 
 //    @Inject
-//    private HSFServiceFactory hsfServiceFactory;
+    private HSFServiceFactory hsfServiceFactory;
 
     public String execute() throws Exception {
                 List<SysProvince> sysProvinceList= sysProvinceService.getList();
-        TxcTransactionScaner txcTransactionScaner=new TxcTransactionScaner("asdads");
+
+
+
+        hsfServiceFactory.consumer(MyService.class).echo("hello ali edas");
+
+
+
+        TxcTransactionScaner txcTransactionScaner=new TxcTransactionScaner("o2-shop-.1758862495957920.BJ");
+
+
+//        BeanUtils.forceSetProperty(txcTransactionScaner,"accessKey","");
+//        BeanUtils.forceSetProperty(txcTransactionScaner,"secretKey","");
+
 
 
         if(sysProvinceList!=null&&!sysProvinceList.isEmpty()){
@@ -37,7 +50,7 @@ public class SysOrgAction extends BaseAction {
                 System.out.println(province.getName());
             }
         }
-        //hsfServiceFactory.consumer(MyService.class).echo("hello ali edas");
+
 //
         return "success";
     }

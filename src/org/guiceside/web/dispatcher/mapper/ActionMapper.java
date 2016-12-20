@@ -3,7 +3,9 @@ package org.guiceside.web.dispatcher.mapper;
 
 import com.google.inject.Injector;
 import org.guiceside.config.Configuration;
+import org.guiceside.web.dispatcher.FilterDispatcher;
 
+import javax.servlet.Filter;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -23,7 +25,7 @@ public interface ActionMapper {
 	 * @return 返回ActionMapping JavaBean
 	 * @throws RuntimeException
 	 */
-	ActionMapping getMapping(HttpServletRequest httpServletRequest, Configuration configuration) throws RuntimeException;
+	ActionMapping getMapping(HttpServletRequest httpServletRequest, Configuration configuration, String filterClassName) throws RuntimeException;
 
     void createAction(ActionMapping actionMapping, Injector injector);
 }

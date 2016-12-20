@@ -15,12 +15,10 @@ import org.guiceside.guice.strategy.AbstractInterceptorStrategy;
 import org.guiceside.persistence.PersistenceFlavor;
 import org.guiceside.web.annotation.Dispatcher;
 
+import javax.servlet.Filter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * <p>
@@ -96,6 +94,15 @@ public class ConfigurationManager {
         configuration.setFreemarkerWrapper(getFreeMarkerWrapper());
         configuration.setFreemarkerExceptionHandler(getFreeMarkerExceptionHandler());
         configuration.setFilterObjList(getFilterObjs());
+
+        List<FilterObj> filterObjList=configuration.getFilterObjList();
+        if(filterObjList!=null&&!filterObjList.isEmpty()){
+            Map<String, FilterObj> filterObjMap=new HashMap<>();
+            for(FilterObj filterObj:filterObjList){
+                filterObjMap.put(filterObj.getFilter(),filterObj);
+            }
+            configuration.setFilterObjMap(filterObjMap);
+        }
         return configuration;
     }
 
@@ -477,6 +484,10 @@ public class ConfigurationManager {
                         FilterObj filterObj=new FilterObj();
                         filterObj.setFilter(element.elementText("class"));
                         filterObj.setUrlPattern(element.elementText("urlPattern"));
+                        if(StringUtils.isNotBlank(element.elementText("exclude"))){
+                            filterObj.setExclude(element.elementText("exclude"));
+                            filterObj.setExclude(filterObj.getExclude().toLowerCase());
+                        }
                         filterObjList.add(filterObj);
                     }
                 }

@@ -29,10 +29,12 @@
         <filter>
             <class>org.guiceside.web.dispatcher.SessionInViewFilter</class>
             <urlPattern>/webapi/*,/sys/*</urlPattern>
+            <exclude></exclude>
         </filter>
         <filter>
             <class>org.guiceside.web.dispatcher.FilterDispatcher</class>
             <urlPattern>/sys/*</urlPattern>
+            <exclude></exclude>
         </filter>
     </filters>
     <action>

@@ -15,6 +15,8 @@ public class FilterObj implements Serializable {
 
     private String urlPattern;
 
+    private String exclude;
+
     public String getFilter() {
         return filter;
     }
@@ -31,18 +33,27 @@ public class FilterObj implements Serializable {
         this.urlPattern = urlPattern;
     }
 
+    public String getExclude() {
+        return exclude;
+    }
+
+    public void setExclude(String exclude) {
+        this.exclude = exclude;
+    }
+
+
+    public List<String> getExcludeList(){
+        List<String> stringList=null;
+        if(StringUtils.isNotBlank(exclude)){
+            stringList=strs2List(exclude);
+        }
+        return stringList;
+    }
+
     public List<String> getUrlPatternList(){
         List<String> stringList=null;
         if(StringUtils.isNotBlank(urlPattern)){
-            String[] urlPatterns=urlPattern.split(",");
-            if(urlPatterns!=null&&urlPatterns.length>0){
-                stringList=new ArrayList<String>();
-                for(String pattern:urlPatterns){
-                    if(StringUtils.isNotBlank(pattern)){
-                        stringList.add(pattern);
-                    }
-                }
-            }
+            stringList=strs2List(urlPattern);
         }
         return stringList;
     }
@@ -57,5 +68,22 @@ public class FilterObj implements Serializable {
             }
         }
         return filterClass;
+    }
+
+
+    public List<String> strs2List(String str){
+        List<String> stringList=null;
+        if(StringUtils.isNotBlank(str)){
+            String[] strs=str.split(",");
+            if(strs!=null&&strs.length>0){
+                stringList=new ArrayList<String>();
+                for(String s:strs){
+                    if(StringUtils.isNotBlank(s)){
+                        stringList.add(s);
+                    }
+                }
+            }
+        }
+        return stringList;
     }
 }
