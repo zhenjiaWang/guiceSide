@@ -35,66 +35,44 @@ public class MongoManager {
     private MongoManager() {
     }
 
-    private static String getLocalIP(){
-        InetAddress addr = null;
-        try {
-            addr = InetAddress.getLocalHost();
-        } catch (UnknownHostException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        byte[] ipAddr = addr.getAddress();
-        String ipAddrStr = "";
-        for (int i = 0; i < ipAddr.length; i++) {
-            if (i > 0) {
-                ipAddrStr += ".";
-            }
-            ipAddrStr += ipAddr[i] & 0xFF;
-        }
-        return ipAddrStr;
-    }
     public static void init(PropertiesConfig webConfig) {
-        String severIp=getLocalIP();
-        String serverName=null;
-        if(severIp.startsWith("192.")){
-            serverName="DEV_";
-        }else{
-            serverName="DIS_";
-        }
-        if (client != null) return;
-        String userName = webConfig.getString(serverName+"MONGO_userName");
-        String password = webConfig.getString(serverName+"MONGO_password");
-        String defaultDB = webConfig.getString(serverName+"MONGO_defaultDb");
-        dbName = defaultDB;
-        MongoClientOptions.Builder builder = new MongoClientOptions.Builder();
-        builder.connectionsPerHost(webConfig.getInt(serverName+"MONGO_connections_per_host"));
-        builder.maxWaitTime(webConfig.getInt(serverName+"MONGO_max_wait_time"));
-        builder.socketTimeout(webConfig.getInt(serverName+"MONGO_socket_timeout"));
-        builder.connectTimeout(webConfig.getInt(serverName+"MONGO_connect_timeout"));
-        builder.threadsAllowedToBlockForConnectionMultiplier(webConfig.getInt(serverName+"MONGO_threads_allowed_to_block_for_connection_multiplier"));
-        String host1 = webConfig.getString(serverName+"MONGO_host1");
-        String host2 = webConfig.getString(serverName+"MONGO_host2");
-        Integer port = webConfig.getInt(serverName+"MONGO_port");
-        MongoClientURI uri = null;
-        if (StringUtils.isNotBlank(host1) && StringUtils.isNotBlank(host2)) {
-            ServerAddress seed1 = new ServerAddress(host1, port);
-            ServerAddress seed2 = new ServerAddress(host2, port);
+        String releaseEnvironment=webConfig.getString("releaseEnvironment");
+        if(StringUtils.isNotBlank(releaseEnvironment)){
+            String serverName=releaseEnvironment+"_";
+            if (client != null) return;
+            String userName = webConfig.getString(serverName+"MONGO_userName");
+            String password = webConfig.getString(serverName+"MONGO_password");
+            String defaultDB = webConfig.getString(serverName+"MONGO_defaultDb");
+            dbName = defaultDB;
+            MongoClientOptions.Builder builder = new MongoClientOptions.Builder();
+            builder.connectionsPerHost(webConfig.getInt(serverName+"MONGO_connections_per_host"));
+            builder.maxWaitTime(webConfig.getInt(serverName+"MONGO_max_wait_time"));
+            builder.socketTimeout(webConfig.getInt(serverName+"MONGO_socket_timeout"));
+            builder.connectTimeout(webConfig.getInt(serverName+"MONGO_connect_timeout"));
+            builder.threadsAllowedToBlockForConnectionMultiplier(webConfig.getInt(serverName+"MONGO_threads_allowed_to_block_for_connection_multiplier"));
+            String host1 = webConfig.getString(serverName+"MONGO_host1");
+            String host2 = webConfig.getString(serverName+"MONGO_host2");
+            Integer port = webConfig.getInt(serverName+"MONGO_port");
+            MongoClientURI uri = null;
+            if (StringUtils.isNotBlank(host1) && StringUtils.isNotBlank(host2)) {
+                ServerAddress seed1 = new ServerAddress(host1, port);
+                ServerAddress seed2 = new ServerAddress(host2, port);
 
-            String replicaSet = "mgset-1296367";
+                String replicaSet = "mgset-1296367";
 
-            uri = new MongoClientURI("mongodb://" + userName + ":" + password + "@" + seed1 + "," + seed2 + "/" + defaultDB + "?replicaSet=" + replicaSet, builder);
-        } else if (StringUtils.isNotBlank(host1)) {
-            ServerAddress sa = new ServerAddress(host1, port);
-            uri = new MongoClientURI("mongodb://" + userName + ":" + password + "@" + sa + "/" + defaultDB, builder);
+                uri = new MongoClientURI("mongodb://" + userName + ":" + password + "@" + seed1 + "," + seed2 + "/" + defaultDB + "?replicaSet=" + replicaSet, builder);
+            } else if (StringUtils.isNotBlank(host1)) {
+                ServerAddress sa = new ServerAddress(host1, port);
+                uri = new MongoClientURI("mongodb://" + userName + ":" + password + "@" + sa + "/" + defaultDB, builder);
+            }
+            System.out.println(serverName);
+            System.out.println(userName);
+            System.out.println(password);
+            System.out.println(defaultDB);
+            System.out.println(host1);
+            System.out.println(host2);
+            client = new MongoClient(uri);
         }
-        System.out.println(serverName);
-        System.out.println(userName);
-        System.out.println(password);
-        System.out.println(defaultDB);
-        System.out.println(host1);
-        System.out.println(host2);
-        client = new MongoClient(uri);
     }
 
     public static void shutdown() {
