@@ -1,60 +1,27 @@
 package org.guiceside.support.redis;
 
-import org.guiceside.commons.lang.StringUtils;
-import org.guiceside.support.properties.PropertiesConfig;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.util.Map;
 
 /**
  * Created by wangjia on 14-7-14.
  */
 public class RedisStoreUtils {
-    /**
-     * 主机
-     */
-    /**
-     * 端口
-     */
-    private static final int PORT = 6379;
-
-    static  JedisPool pool=null;
-
-    public static void init(PropertiesConfig webConfig, String dbType) {
-        if (pool != null) {
-            return;
-        }
-        if (webConfig != null) {
-            JedisPoolConfig config = new JedisPoolConfig();
-            //最大空闲连接数, 应用自己评估，不要超过KVStore每个实例最大的连接数
-            config.setMaxIdle(200);
-            //最大连接数, 应用自己评估，不要超过KVStore每个实例最大的连接数
-            config.setMaxTotal(300);
-
-            config.setTestOnBorrow(false);
-
-            config.setTestWhileIdle(false);
-
-            config.setTestOnReturn(false);
-            String releaseEnvironment=webConfig.getString("releaseEnvironment");
-            if(StringUtils.isNotBlank(releaseEnvironment)) {
-                String serverName = releaseEnvironment + "_";
-                pool = new JedisPool(config, webConfig.getString(serverName+dbType + "_HOST"), PORT, 10000, webConfig.getString(serverName+dbType + "_PWD"));
-            }
-
-        }
+    public static void expire(Jedis jedis, byte[] key, int seconds) {
+        jedis.expire(key, seconds);
     }
 
-    public static JedisPool getPool() {
-        return pool;
+    public static void persist(Jedis jedis, byte[] key) {
+        jedis.persist(key);
     }
-    public static void destroy() {
-        if (pool != null) {
-            pool.destroy();
-        }
+
+    public static void del(Jedis jedis, byte[] key) {
+        jedis.del(key);
+    }
+
+    public static boolean exists(Jedis jedis, byte[] key) {
+        return jedis.exists(key);
     }
 
 
@@ -66,10 +33,14 @@ public class RedisStoreUtils {
         jedis.hset(key, field, SerializeUtil.serialize(serializeObj));
     }
 
-
-    public static void del(Jedis jedis, byte[] key) {
-        jedis.del(key);
+    public static void hdel(Jedis jedis, byte[] key, byte[] field) {
+        jedis.hdel(key, field);
     }
+
+    public static void hmset(Jedis jedis, byte[] key, Map<byte[], byte[]> map) {
+        jedis.hmset(key, map);
+    }
+
 
     public static Object hget(Jedis jedis, byte[] key, byte[] field) {
         Object serializeObj = null;
@@ -82,8 +53,24 @@ public class RedisStoreUtils {
     }
 
 
-    public static boolean exists(Jedis jedis, byte[] key) {
-        return jedis.exists(key);
+    public static boolean setbit(Jedis jedis, byte[] key, long offset, boolean value) {
+        return jedis.setbit(key, offset, value);
+    }
+
+    public static boolean setbit(Jedis jedis, byte[] key, long offset, byte[] value) {
+        return jedis.setbit(key, offset, value);
+    }
+
+    public static boolean getbit(Jedis jedis, byte[] key, long offset) {
+        return jedis.getbit(key, offset);
+    }
+
+    public static long bitcount(Jedis jedis, byte[] key) {
+        return jedis.bitcount(key);
+    }
+
+    public static long bitcount(Jedis jedis, byte[] key, long start, long end) {
+        return jedis.bitcount(key, start, end);
     }
 
     public static Object get(Jedis jedis, byte[] key) {
