@@ -97,7 +97,7 @@ public class RedisSession implements HttpSession {
                     try {
                         RedisStoreUtils.expire(jedis, key.getBytes(), maxInactiveInterval);
                         this.maxInactiveInterval = maxInactiveInterval;
-                    } catch (Exception e) {
+                    } catch (RedisSessionException e) {
                     }
                 } finally {
                     if (jedis != null) {
@@ -119,7 +119,7 @@ public class RedisSession implements HttpSession {
                     jedis.select(RedisSessionUtils.DB_INDEX);
                     try {
                         RedisStoreUtils.hset(jedis, key.getBytes(), attr.getBytes(), attrValue);
-                    } catch (Exception e) {
+                    } catch (RedisSessionException e) {
                         flag = true;
                     }
                 } finally {
@@ -151,7 +151,7 @@ public class RedisSession implements HttpSession {
                         if (obj != null) {
                             attrValue = obj.toString();
                         }
-                    } catch (Exception e) {
+                    } catch (RedisSessionException e) {
                         flag = true;
                     }
                 } finally {
@@ -178,7 +178,7 @@ public class RedisSession implements HttpSession {
                     jedis.select(RedisSessionUtils.DB_INDEX);
                     try {
                         obj = RedisStoreUtils.hget(jedis, key.getBytes(), attr.getBytes());
-                    } catch (Exception e) {
+                    } catch (RedisSessionException e) {
                         flag = true;
                     }
                 } finally {
@@ -208,7 +208,7 @@ public class RedisSession implements HttpSession {
                         if (obj != null) {
                             value = BeanUtils.convertValue(obj, classType);
                         }
-                    } catch (Exception e) {
+                    } catch (RedisSessionException e) {
                         flag = true;
                     }
                 } finally {
@@ -235,7 +235,7 @@ public class RedisSession implements HttpSession {
                     jedis.select(RedisSessionUtils.DB_INDEX);
                     try {
                         RedisStoreUtils.hdel(jedis,key.getBytes(),attr.getBytes());
-                    } catch (Exception e) {
+                    } catch (RedisSessionException e) {
                         flag = true;
                     }
                 } finally {

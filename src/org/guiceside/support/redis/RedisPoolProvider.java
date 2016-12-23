@@ -49,6 +49,8 @@ public class RedisPoolProvider {
                         int port = webConfig.getInt(releaseEnvironment + "_" + dbName + "_PORT");
                         JedisPool pool = new JedisPool(config, host, port, 10000, pwd);
                         mapPool.put(dbName, pool);
+
+                        System.out.println("redis db "+dbName+" created pool");
                     }
                 }
             }

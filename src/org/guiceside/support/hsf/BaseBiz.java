@@ -8,7 +8,13 @@ import org.apache.commons.beanutils.converters.*;
 import org.guiceside.commons.lang.BeanUtils;
 import org.guiceside.commons.lang.StringUtils;
 import org.guiceside.support.converter.DateConverter;
+import org.guiceside.support.redis.RedisPoolProvider;
+import org.guiceside.support.redis.session.RedisSession;
+import org.guiceside.support.redis.session.RedisSessionException;
+import org.guiceside.support.redis.session.RedisSessionUtils;
+import redis.clients.jedis.JedisPool;
 
+import javax.servlet.http.HttpSession;
 import java.util.Date;
 
 public class BaseBiz {
@@ -16,21 +22,21 @@ public class BaseBiz {
     @Inject
     private HSFServiceFactory hsfServiceFactory;
 
-    public  <T> T  getService(Class<T> serviceClass) throws Exception {
+    public <T> T getService(Class<T> serviceClass) throws Exception {
         return hsfServiceFactory.consumer(serviceClass);
     }
 
-//    public UserInfo getSession(String sessionID) throws Exception {
-//        HttpSession
-//        if(StringUtils.isNotBlank(sessionID)){
-//            JedisPool jedisPool= RedisStoreUtils.getPool();
-//            UserInfo userInfo= SessionCacheUtils.getUserInfo(jedisPool,accessToken);
-//            if(userInfo!=null){
-//                return userInfo;
-//            }
-//        }
-//        throw new UserSessionException();
-//    }
+    public HttpSession getSession(String sessionID) throws RedisSessionException {
+        RedisSession redisSession = null;
+        if (StringUtils.isNotBlank(sessionID)) {
+            JedisPool jedisPool = RedisPoolProvider.getPool("REDIS_SESSION");
+            redisSession = RedisSessionUtils.getSession(jedisPool, sessionID);
+            if (redisSession != null) {
+                return redisSession;
+            }
+        }
+        throw new RedisSessionException();
+    }
 
 
     protected String get(Object entity, String property) {
@@ -74,34 +80,37 @@ public class BaseBiz {
     protected String getJsonStr(JSONObject jsonObject, String key) {
         String result;
         try {
-            result=jsonObject.getString(key);
-        }catch (Exception e){
-            result=null;
+            result = jsonObject.getString(key);
+        } catch (Exception e) {
+            result = null;
         }
         return result;
     }
+
     protected String getJsonStr(JSONObject jsonObject, String key, String defaultValue) {
-        String result=getJsonStr(jsonObject, key);
-        if(StringUtils.isBlank(result)){
-            result=defaultValue;
+        String result = getJsonStr(jsonObject, key);
+        if (StringUtils.isBlank(result)) {
+            result = defaultValue;
         }
         return result;
     }
+
     protected int getJsonInt(JSONObject jsonObject, String key) {
         int result;
         try {
-            result=jsonObject.getInt(key);
-        }catch (Exception e){
-            result=-1;
+            result = jsonObject.getInt(key);
+        } catch (Exception e) {
+            result = -1;
         }
         return result;
     }
+
     protected double getJsonDouble(JSONObject jsonObject, String key) {
         double result;
         try {
-            result=jsonObject.getDouble(key);
-        }catch (Exception e){
-            result=-1.00;
+            result = jsonObject.getDouble(key);
+        } catch (Exception e) {
+            result = -1.00;
         }
         return result;
     }
@@ -117,6 +126,7 @@ public class BaseBiz {
         ConvertUtils.register(new DoubleConverter(null), Double.class);
         ConvertUtils.register(new DateConverter(), Date.class);
     }
+
     static {
         registConverter();
     }
