@@ -5,6 +5,7 @@ import org.guiceside.support.properties.PropertiesConfig;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -50,7 +51,7 @@ public class RedisPoolProvider {
                         JedisPool pool = new JedisPool(config, host, port, 10000, pwd);
                         mapPool.put(dbName, pool);
 
-                        System.out.println("redis db "+dbName+" created pool");
+                        System.out.println("redis db " + dbName + " created pool");
                     }
                 }
             }
@@ -62,6 +63,22 @@ public class RedisPoolProvider {
             return mapPool.get(dbName);
         }
         return null;
+    }
+
+    public static void destroyAll() {
+        if (mapPool != null) {
+            Set<String> dbKeys = mapPool.keySet();
+            if (dbKeys != null && !dbKeys.isEmpty()) {
+                for (String dbKey : dbKeys) {
+                    if (StringUtils.isNotBlank(dbKey)) {
+                        JedisPool pool = mapPool.get(dbKey);
+                        if (pool != null) {
+                            pool.destroy();
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public static void destroy(String dbName) {
