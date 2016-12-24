@@ -1,10 +1,8 @@
 package org.guiceside.support.hsf;
 
-import com.google.inject.Inject;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.log4j.Logger;
-import org.guiceside.persistence.WorkManager;
 import org.guiceside.persistence.hibernate.SessionFactoryHolder;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -22,7 +20,6 @@ import java.lang.reflect.Method;
 public class ConnectManagerInterceptor implements MethodInterceptor {
 
 	private static final  Logger log=Logger.getLogger(ConnectManagerInterceptor.class);
-
 
 	@ConnectManager
 	private static class Internal {
@@ -66,7 +63,6 @@ public class ConnectManagerInterceptor implements MethodInterceptor {
 
 		Session session = SessionFactoryHolder.getCurrentSessionFactory()
 				.openSession();
-
 		ManagedSessionContext.bind(session);
 	}
 
@@ -78,7 +74,6 @@ public class ConnectManagerInterceptor implements MethodInterceptor {
 		}
 		try {
 			Session session = sessionFactory.getCurrentSession();
-
 			session.close();
 		} finally {
 			ManagedSessionContext.unbind(sessionFactory);
