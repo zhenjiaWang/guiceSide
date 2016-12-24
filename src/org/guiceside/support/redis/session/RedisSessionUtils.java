@@ -51,6 +51,7 @@ public class RedisSessionUtils implements Serializable {
                             if (redisSession != null) {
                                 long currentTime = System.currentTimeMillis();
                                 redisSession.setPool(pool);
+                                redisSession.setNewSession(false);
                                 redisSession.setLastAccessedTime(currentTime);
                             }
                         } else {

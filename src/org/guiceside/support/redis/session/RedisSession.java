@@ -42,7 +42,7 @@ public class RedisSession implements HttpSession {
 
     public RedisSession(String id) {
         this.id = id;
-        maxInactiveInterval = 1800;
+        maxInactiveInterval = 60 * 120;
         this.key = this.id + RedisSessionUtils.Suffix;
         this.available = false;
     }

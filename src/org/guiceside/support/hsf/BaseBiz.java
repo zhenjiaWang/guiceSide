@@ -6,12 +6,13 @@ import ognl.OgnlException;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.converters.*;
 import org.guiceside.commons.lang.BeanUtils;
+import org.guiceside.commons.lang.DateFormatUtil;
 import org.guiceside.commons.lang.StringUtils;
+import org.guiceside.persistence.entity.IdEntity;
+import org.guiceside.persistence.entity.Tracker;
 import org.guiceside.support.converter.DateConverter;
 import org.guiceside.support.redis.RedisPoolProvider;
-import org.guiceside.support.redis.session.RedisSession;
-import org.guiceside.support.redis.session.RedisSessionException;
-import org.guiceside.support.redis.session.RedisSessionUtils;
+import org.guiceside.support.redis.session.*;
 import redis.clients.jedis.JedisPool;
 
 import javax.servlet.http.HttpSession;
@@ -113,6 +114,32 @@ public class BaseBiz {
             result = -1.00;
         }
         return result;
+    }
+
+    protected void bind(IdEntity entity,String sessionID) throws Exception {
+        if (entity instanceof Tracker) {
+            if (BeanUtils.getValue(entity, "id") == null) {
+                BeanUtils.setValue(entity, "created", DateFormatUtil.getCurrentDate(true));
+            }
+            BeanUtils.setValue(entity, "updated", DateFormatUtil.getCurrentDate(true));
+            try {
+                RedisUserInfo redisUserInfo= RedisUserSession.getUserInfo(sessionID);
+                if (redisUserInfo != null) {
+                    BeanUtils.setValue(entity, "createdBy", redisUserInfo.getUserId());
+                    BeanUtils.setValue(entity, "updatedBy", redisUserInfo.getUserId());
+                }
+            }catch (Exception e){
+
+            }
+        }
+        try {
+            String useYn = BeanUtils.getValue(entity, "useYn", String.class);
+            if (StringUtils.isBlank(useYn)) {
+                BeanUtils.setValue(entity, "useYn", "N");
+            }
+        } catch (Exception e) {
+            BeanUtils.setValue(entity, "useYn", "N");
+        }
     }
 
     /**
