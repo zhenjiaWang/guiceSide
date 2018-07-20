@@ -3,9 +3,7 @@ package org.guiceside.web.dispatcher.mapper;
 
 import com.google.inject.Injector;
 import org.guiceside.config.Configuration;
-import org.guiceside.web.dispatcher.FilterDispatcher;
 
-import javax.servlet.Filter;
 import javax.servlet.http.HttpServletRequest;
 
 /**

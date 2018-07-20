@@ -7,7 +7,6 @@ import org.guiceside.commons.HSFConfig;
 import org.guiceside.guice.strategy.AbstractInterceptorStrategy;
 import org.guiceside.persistence.PersistenceFlavor;
 
-import javax.servlet.Filter;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -47,9 +46,6 @@ public class Configuration implements Serializable {
     private String freemarkerContentType;
 
     private String freemarkerExceptionHandler;
-
-
-    private String ignoreParamsKey;
 
     private Set<String> actionPackages;
 
@@ -183,14 +179,6 @@ public class Configuration implements Serializable {
 
     public void setHibernatePackages(Set<String> hibernatePackages) {
         this.hibernatePackages = hibernatePackages;
-    }
-
-    public String getIgnoreParamsKey() {
-        return ignoreParamsKey;
-    }
-
-    public void setIgnoreParamsKey(String ignoreParamsKey) {
-        this.ignoreParamsKey = ignoreParamsKey;
     }
 
     public List<FilterObj> getFilterObjList() {

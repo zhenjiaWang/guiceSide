@@ -9,6 +9,7 @@ import org.guiceside.commons.lang.BeanUtils;
 import org.guiceside.commons.lang.DateFormatUtil;
 import org.guiceside.commons.lang.StringUtils;
 import org.guiceside.persistence.entity.IdEntity;
+import org.guiceside.persistence.entity.IdEntityPK;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -63,10 +64,31 @@ public class JsonUtils {
                                         String dateStr = DateFormatUtil.format(dateObj, DateFormatUtil.YMDHMS_PATTERN);
                                         if (StringUtils.isNotBlank(dateStr)) {
                                             if(dateStr.endsWith("00:00:00")){
-                                                dateStr = DateFormatUtil.format(dateObj, DateFormatUtil.YEAR_MONTH_DAY_PATTERN_SHORT);
+                                                dateStr = DateFormatUtil.format(dateObj, DateFormatUtil.YEAR_MONTH_DAY_PATTERN);
                                             }
                                         }
                                         fieldValue=dateStr;
+                                    }else if (fieldTypeClass.equals(Long.class)) {
+                                        fieldValue=fieldValue.toString();
+                                    }else if (IdEntityPK.class.isAssignableFrom(field.getType())) {
+                                        Object pkObj=fieldValue;
+                                        Class<?> clazPK = pkObj.getClass();
+                                        if(clazPK!=null){
+                                            Field[] fsPK = clazPK.getDeclaredFields();
+                                            if (fsPK != null && fsPK.length > 0) {
+                                                JSONObject pkJSON = new JSONObject();
+                                                for (Field fieldPK : fsPK) {
+                                                    fieldPK.setAccessible(true);
+                                                    Object fieldValuePK = fieldPK.get(pkObj);
+                                                    if(fieldValuePK!=null){
+                                                        pkJSON.put(fieldPK.getName(),fieldValuePK.toString());
+                                                    }else{
+                                                        pkJSON.put(fieldPK.getName(),"");
+                                                    }
+                                                }
+                                                fieldValue=pkJSON;
+                                            }
+                                        }
                                     }
                                 } else {
                                     if (fieldTypeClass.equals(String.class)) {

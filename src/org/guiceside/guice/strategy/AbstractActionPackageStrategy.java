@@ -1,9 +1,9 @@
 package org.guiceside.guice.strategy;
 
 import com.google.inject.AbstractModule;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.guiceside.commons.lang.ClassUtils;
+import org.guiceside.commons.lang.StringUtils;
 import org.guiceside.web.annotation.Action;
 import org.guiceside.web.dispatcher.mapper.ActionResourceException;
 import org.guiceside.web.dispatcher.mapper.ActionResourceManager;

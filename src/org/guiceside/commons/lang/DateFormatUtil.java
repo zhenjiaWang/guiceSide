@@ -1,6 +1,5 @@
 package org.guiceside.commons.lang;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.text.DateFormat;
@@ -385,6 +384,13 @@ public class DateFormatUtil {
 		Calendar c = Calendar.getInstance();
 		c.setTime(date);
 		c.add(Calendar.MINUTE, ammount);
+		return c.getTime();
+	}
+
+	public static Date addSecond(final Date date, final int ammount) {
+		Calendar c = Calendar.getInstance();
+		c.setTime(date);
+		c.add(Calendar.SECOND, ammount);
 		return c.getTime();
 	}
 

@@ -21,6 +21,8 @@ public class SysCity extends IdEntity implements Tracker {
      */
     private static final long serialVersionUID = 1L;
 
+    private EntrustO2BuyPK pk;
+
     private Long id;
 
     private SysProvince provinceId;
@@ -39,6 +41,13 @@ public class SysCity extends IdEntity implements Tracker {
 
     private String useYn;
 
+    public EntrustO2BuyPK getPk() {
+        return pk;
+    }
+
+    public void setPk(EntrustO2BuyPK pk) {
+        this.pk = pk;
+    }
 
     @Column(name = "CREATED", updatable = false)
     public Date getCreated() {

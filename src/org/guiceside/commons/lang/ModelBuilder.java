@@ -2,8 +2,7 @@ package org.guiceside.commons.lang;
 
 import ognl.OgnlException;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.lang.ClassUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.guiceside.commons.collection.RequestData;
 
 import java.util.*;

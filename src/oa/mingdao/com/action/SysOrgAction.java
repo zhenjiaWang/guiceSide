@@ -1,10 +1,6 @@
 package oa.mingdao.com.action;
 
-import com.google.inject.Inject;
 import com.taobao.txc.client.aop.TxcTransactionScaner;
-import oa.mingdao.com.entity.SysProvince;
-import oa.mingdao.com.service.SysProvinceService;
-import org.guiceside.commons.lang.BeanUtils;
 import org.guiceside.support.hsf.HSFServiceFactory;
 import org.guiceside.web.action.BaseAction;
 import org.guiceside.web.annotation.Action;
@@ -12,7 +8,6 @@ import org.guiceside.web.annotation.ReqGet;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.util.List;
 
 
 /**
@@ -21,8 +16,6 @@ import java.util.List;
 @Action(name = "org", namespace = "/sys")
 public class SysOrgAction extends BaseAction {
 
-    @Inject
-    private SysProvinceService sysProvinceService;
 
     @ReqGet
     private String name;
@@ -31,8 +24,6 @@ public class SysOrgAction extends BaseAction {
     private HSFServiceFactory hsfServiceFactory;
 
     public String execute() throws Exception {
-                List<SysProvince> sysProvinceList= sysProvinceService.getList();
-
 
 
         hsfServiceFactory.consumer(MyService.class).echo("hello ali edas");
@@ -68,13 +59,6 @@ public class SysOrgAction extends BaseAction {
 
 
 
-
-
-        if(sysProvinceList!=null&&!sysProvinceList.isEmpty()){
-            for(SysProvince province:sysProvinceList){
-                System.out.println(province.getName());
-            }
-        }
 
 //
         return "success";

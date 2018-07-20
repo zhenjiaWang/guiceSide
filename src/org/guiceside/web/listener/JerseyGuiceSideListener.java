@@ -1,6 +1,7 @@
 package org.guiceside.web.listener;
 
-import com.google.inject.*;
+import com.google.inject.Injector;
+import com.google.inject.Stage;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.squarespace.jersey2.guice.BootstrapUtils;
 import org.apache.log4j.Logger;

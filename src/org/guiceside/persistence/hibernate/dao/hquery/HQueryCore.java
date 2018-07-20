@@ -318,6 +318,15 @@ public class HQueryCore extends HQuerySupport {
                 return (T) value;
             }
         }else{
+            if(value==null){
+                if(type.toString().equals(Long.class.toString())){
+                    value=-1l;
+                }else  if(type.toString().equals(Integer.class.toString())){
+                    value=-1;
+                }else  if(type.toString().equals(Double.class.toString())){
+                    value=0.0d;
+                }
+            }
             return (T) value;
         }
     }

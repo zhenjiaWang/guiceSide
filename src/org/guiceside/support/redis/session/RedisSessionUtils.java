@@ -1,41 +1,40 @@
 package org.guiceside.support.redis.session;
 
+import org.guiceside.commons.lang.BeanUtils;
 import org.guiceside.commons.lang.StringUtils;
 import org.guiceside.support.redis.RedisStoreUtils;
-import org.guiceside.support.redis.SerializeUtil;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by zhenjiaWang on 15/8/8.
  */
 public class RedisSessionUtils implements Serializable {
-    public static final int DB_INDEX = 0;
+    public static final int DB_INDEX_SESSION = 0;
 
     public static final String Suffix = "_redisSession";
 
-
-    public static void refreshExpire(RedisSession redisSession) throws RedisSessionException {
-        if (redisSession != null) {
-            long startTime = redisSession.getCreationTime();
+    public static void refreshExpire(Jedis jedis, RedisUserInfo redisUserInfo) throws RedisSessionException {
+        if (redisUserInfo != null) {
+            long startTime = redisUserInfo.getCreateTimes();
             long currentTime = System.currentTimeMillis();
-            int maxInactiveInterval = redisSession.getMaxInactiveInterval();
+            int maxInactiveInterval = redisUserInfo.getMaxInactiveInterval();
             long diffTime = currentTime - startTime;
             diffTime = diffTime * 1000;
             long half = maxInactiveInterval / 2;
             if (diffTime <= half) {
-                redisSession.setMaxInactiveInterval(maxInactiveInterval);
+                RedisStoreUtils.expire(jedis, (redisUserInfo.getSessionId() + Suffix).getBytes(), redisUserInfo.getMaxInactiveInterval());
             }
-            redisSession.setLastAccessedTime(currentTime);
+            RedisStoreUtils.hset(jedis, (redisUserInfo.getSessionId() + Suffix), "lastAccessedTime", currentTime + "");
         }
     }
 
-    public static RedisSession getSession(JedisPool pool, String sessionID) throws RedisSessionException {
-        RedisSession redisSession = null;
+
+    public static RedisUserInfo getUserInfo(JedisPool pool, String sessionID) throws RedisSessionException {
+        RedisUserInfo redisUserInfo = null;
         if (pool != null) {
             Jedis jedis = null;
             if (StringUtils.isNotBlank(sessionID)) {
@@ -43,69 +42,165 @@ public class RedisSessionUtils implements Serializable {
                 boolean exists = false;
                 try {
                     jedis = pool.getResource();
-                    jedis.select(DB_INDEX);
+                    jedis.select(DB_INDEX_SESSION);
                     try {
-                        exists = RedisStoreUtils.exists(jedis, (sessionID + Suffix).getBytes());
+                        exists = RedisStoreUtils.exists(jedis, (sessionID + Suffix));
                         if (exists) {
-                            redisSession = getCurrentSession(jedis, sessionID);
-                            if (redisSession != null) {
-                                long currentTime = System.currentTimeMillis();
-                                redisSession.setPool(pool);
-                                redisSession.setNewSession(false);
-                                redisSession.setLastAccessedTime(currentTime);
-                            }
-                        } else {
-                            newSession(jedis, sessionID);
+                            redisUserInfo = getCurrentUserInfo(jedis, sessionID);
                         }
                     } catch (RedisSessionException e) {
                         flag = true;
                     }
                 } finally {
                     if (jedis != null) {
-                        jedis.close();
                         if (!flag && exists) {
-                            refreshExpire(redisSession);
+                            refreshExpire(jedis, redisUserInfo);
+                        }
+                        jedis.close();
+                        if (!exists) {
+                            throw new RedisSessionException();
                         }
                     }
                 }
             }
         }
-        return redisSession;
+        return redisUserInfo;
     }
 
-    private static RedisSession newSession(Jedis jedis, String sessionID) throws RedisSessionException {
+
+    public static RedisSession newSession(JedisPool pool, int maxInactiveInterval) throws RedisSessionException {
         RedisSession redisSession = null;
-        if (StringUtils.isNotBlank(sessionID)) {
+        if (pool != null) {
+            Jedis jedis = null;
             try {
+                jedis = pool.getResource();
+                jedis.select(DB_INDEX_SESSION);
                 long currentTime = System.currentTimeMillis();
-                redisSession = new RedisSession(sessionID);
+                String sessionID = SessionUtil.generateSessionId();
+                redisSession = new RedisSession(sessionID, maxInactiveInterval);
                 redisSession.setCreationTime(currentTime);
                 redisSession.setLastAccessedTime(currentTime);
                 redisSession.setNewSession(true);
-                Map<byte[], byte[]> map = new HashMap<>();
-                map.put(RedisSession.class.getName().getBytes(), SerializeUtil.serialize(redisSession));
-                RedisStoreUtils.hmset(jedis, (sessionID + Suffix).getBytes(), map);
-                RedisStoreUtils.expire(jedis, (sessionID + Suffix).getBytes(), redisSession.getMaxInactiveInterval());
-            } catch (RedisSessionException e) {
+                ConcurrentHashMap<String, String> map = new ConcurrentHashMap<>();
+                map.put("creationTime", currentTime + "");
+                map.put("lastAccessedTime", currentTime + "");
+                map.put("newSession", true + "");
+                map.put("sessionID", sessionID + "");
+                map.put("maxInactiveInterval", maxInactiveInterval + "");
+                RedisStoreUtils.hmset(jedis, (sessionID + Suffix), map);
+                RedisStoreUtils.expire(jedis, (sessionID + Suffix), redisSession.getMaxInactiveInterval());
+            } finally {
+                if (jedis != null) {
+                    jedis.close();
+                }
             }
         }
         return redisSession;
     }
 
 
-    private static RedisSession getCurrentSession(Jedis jedis, String sessionID) throws RedisSessionException {
-        RedisSession redisSession = null;
+    private static RedisUserInfo getCurrentUserInfo(Jedis jedis, String sessionID) throws RedisSessionException {
+        RedisUserInfo redisUserInfo = null;
         if (StringUtils.isNotBlank(sessionID)) {
             try {
-                Object obj = RedisStoreUtils.hget(jedis, (sessionID + Suffix).getBytes(), RedisSession.class.getName().getBytes());
-                if (obj != null) {
-                    redisSession = (RedisSession) obj;
+                Long userId = RedisStoreUtils.hgetLong(jedis, (sessionID + Suffix), "userId");
+                if (userId != null) {
+                    redisUserInfo = new RedisUserInfo();
+                    redisUserInfo.setUserId(userId);
+                    redisUserInfo.setSessionId(sessionID);
+                    String ip = RedisStoreUtils.hgetString(jedis, (sessionID + Suffix), "createIp");
+                    redisUserInfo.setCreateIp(ip);
+                    String browser = RedisStoreUtils.hgetString(jedis, (sessionID + Suffix), "browser");
+                    redisUserInfo.setBrowser(browser);
+                    String os = RedisStoreUtils.hgetString(jedis, (sessionID + Suffix), "os");
+                    redisUserInfo.setOs(os);
+                    Long lastAccessedTime = RedisStoreUtils.hgetLong(jedis, (sessionID + Suffix), "lastAccessedTime");
+                    redisUserInfo.setLastAccessedTime(lastAccessedTime);
+                    Integer maxInactiveInterval = RedisStoreUtils.hgetInteger(jedis, (sessionID + Suffix), "maxInactiveInterval");
+                    redisUserInfo.setMaxInactiveInterval(maxInactiveInterval);
                 }
             } catch (RedisSessionException e) {
             }
 
         }
-        return redisSession;
+        return redisUserInfo;
+    }
+
+    public static void removeAttr(JedisPool pool, String sessionID, String key) throws RedisSessionException {
+        if (pool != null) {
+            Jedis jedis = null;
+            if (StringUtils.isNotBlank(sessionID)) {
+                try {
+                    jedis = pool.getResource();
+                    jedis.select(DB_INDEX_SESSION);
+                    RedisStoreUtils.hdel(jedis, (sessionID + Suffix), key);
+                } finally {
+                    if (jedis != null) {
+                        jedis.close();
+                    }
+                }
+            }
+        }
+    }
+
+    public static String getAttr(JedisPool pool, String sessionID, String key) throws RedisSessionException {
+        String value = null;
+        if (pool != null) {
+            Jedis jedis = null;
+            if (StringUtils.isNotBlank(sessionID)) {
+                try {
+                    jedis = pool.getResource();
+                    jedis.select(DB_INDEX_SESSION);
+                    value = RedisStoreUtils.hgetString(jedis, (sessionID + Suffix), key);
+                } finally {
+                    if (jedis != null) {
+                        jedis.close();
+                    }
+                }
+            }
+        }
+        return value;
+    }
+
+    public static <T> T getAttr(JedisPool pool, String sessionID, String key, Class<T> type) throws RedisSessionException {
+        Object result = null;
+        String value = null;
+        if (pool != null) {
+            Jedis jedis = null;
+            if (StringUtils.isNotBlank(sessionID)) {
+                try {
+                    jedis = pool.getResource();
+                    jedis.select(DB_INDEX_SESSION);
+                    value = RedisStoreUtils.hgetString(jedis, (sessionID + Suffix), key);
+                    if (StringUtils.isNotBlank(value)) {
+                        result = BeanUtils.convertValue(value, type);
+                    }
+
+                } finally {
+                    if (jedis != null) {
+                        jedis.close();
+                    }
+                }
+            }
+        }
+        return (T) result;
+    }
+
+    public static void setAttr(JedisPool pool, String sessionID, String key, String value) throws RedisSessionException {
+        if (pool != null) {
+            Jedis jedis = null;
+            if (StringUtils.isNotBlank(sessionID)) {
+                try {
+                    jedis = pool.getResource();
+                    jedis.select(DB_INDEX_SESSION);
+                    RedisStoreUtils.hset(jedis, (sessionID + Suffix), key, value);
+                } finally {
+                    if (jedis != null) {
+                        jedis.close();
+                    }
+                }
+            }
+        }
     }
 
 
@@ -115,9 +210,9 @@ public class RedisSessionUtils implements Serializable {
             if (StringUtils.isNotBlank(sessionID)) {
                 try {
                     jedis = pool.getResource();
-                    jedis.select(DB_INDEX);
+                    jedis.select(DB_INDEX_SESSION);
                     try {
-                        RedisStoreUtils.del(jedis, (sessionID + Suffix).getBytes());
+                        RedisStoreUtils.del(jedis, (sessionID + Suffix));
                     } catch (RedisSessionException e) {
                     }
                 } finally {

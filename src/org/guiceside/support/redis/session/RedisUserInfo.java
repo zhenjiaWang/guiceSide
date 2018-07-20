@@ -34,10 +34,19 @@ public class RedisUserInfo implements Serializable {
 
     private String sessionId;
 
-    private String userId;
+    private Long userId;
 
-    private boolean admin;
+    private long createTimes;
 
+    private long lastAccessedTime;
+
+    private int maxInactiveInterval;
+
+    private String createIp;
+
+    private String browser;
+
+    private String os;
 
     public String getLanguagePreference() {
         return languagePreference;
@@ -84,19 +93,72 @@ public class RedisUserInfo implements Serializable {
         this.sessionId = sessionId;
     }
 
-    public String getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 
-    public boolean isAdmin() {
-        return admin;
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
     }
 
-    public void setAdmin(boolean admin) {
-        this.admin = admin;
+    public static String getDefaultLanguagePreference() {
+        return DEFAULT_LANGUAGE_PREFERENCE;
+    }
+
+    public static String getDefaultCountryPreference() {
+        return DEFAULT_COUNTRY_PREFERENCE;
+    }
+
+    public long getCreateTimes() {
+        return createTimes;
+    }
+
+    public void setCreateTimes(long createTimes) {
+        this.createTimes = createTimes;
+    }
+
+    public String getCreateIp() {
+        return createIp;
+    }
+
+    public void setCreateIp(String createIp) {
+        this.createIp = createIp;
+    }
+
+
+    public String getBrowser() {
+        return browser;
+    }
+
+    public void setBrowser(String browser) {
+        this.browser = browser;
+    }
+
+    public String getOs() {
+        return os;
+    }
+
+    public void setOs(String os) {
+        this.os = os;
+    }
+
+    public long getLastAccessedTime() {
+        return lastAccessedTime;
+    }
+
+    public void setLastAccessedTime(long lastAccessedTime) {
+        this.lastAccessedTime = lastAccessedTime;
+    }
+
+    public int getMaxInactiveInterval() {
+        return maxInactiveInterval;
+    }
+
+    public void setMaxInactiveInterval(int maxInactiveInterval) {
+        this.maxInactiveInterval = maxInactiveInterval;
     }
 }

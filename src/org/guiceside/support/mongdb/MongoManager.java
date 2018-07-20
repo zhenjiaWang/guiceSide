@@ -5,17 +5,12 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.guiceside.commons.lang.StringUtils;
 import org.guiceside.support.properties.PropertiesConfig;
-import org.hibernate.Session;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
 import org.jongo.MongoCursor;
 
-import java.io.InputStream;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * Created by wangjia on 16/6/15.

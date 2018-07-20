@@ -1,10 +1,13 @@
 package org.guiceside.support.hsf;
 
 import com.google.inject.Inject;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import ognl.OgnlException;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.converters.*;
+import org.guiceside.commons.JsonUtils;
+import org.guiceside.commons.Page;
 import org.guiceside.commons.lang.BeanUtils;
 import org.guiceside.commons.lang.DateFormatUtil;
 import org.guiceside.commons.lang.StringUtils;
@@ -17,6 +20,7 @@ import redis.clients.jedis.JedisPool;
 
 import javax.servlet.http.HttpSession;
 import java.util.Date;
+import java.util.List;
 
 public class BaseBiz {
 
@@ -27,17 +31,7 @@ public class BaseBiz {
         return hsfServiceFactory.consumer(serviceClass);
     }
 
-    public HttpSession getSession(String sessionID) throws RedisSessionException {
-        RedisSession redisSession = null;
-        if (StringUtils.isNotBlank(sessionID)) {
-            JedisPool jedisPool = RedisPoolProvider.getPool("REDIS_SESSION");
-            redisSession = RedisSessionUtils.getSession(jedisPool, sessionID);
-            if (redisSession != null) {
-                return redisSession;
-            }
-        }
-        throw new RedisSessionException();
-    }
+
 
 
     protected String get(Object entity, String property) {
@@ -116,17 +110,46 @@ public class BaseBiz {
         return result;
     }
 
-    protected void bind(IdEntity entity,String sessionID) throws Exception {
-        if (entity instanceof Tracker) {
-            if (BeanUtils.getValue(entity, "id") == null) {
-                BeanUtils.setValue(entity, "created", DateFormatUtil.getCurrentDate(true));
+    protected JSONArray buildList2Array(List<IdEntity> idEntityList){
+        JSONArray jsonArray=null;
+        if(idEntityList!=null&&!idEntityList.isEmpty()){
+            jsonArray=new JSONArray();
+            for(IdEntity idEntity:idEntityList){
+                JSONObject btcInObj= JsonUtils.formIdEntity(idEntity);
+                jsonArray.add(btcInObj);
             }
+        }
+        return jsonArray;
+    }
+    protected  JSONObject buildPage2Obj(Page page){
+        if(page==null){
+            return null;
+        }
+        JSONObject pageObj=new JSONObject();
+        pageObj.put("currentPage",page.getCurrentPage());
+        pageObj.put("everyPage",page.getEveryPage());
+        pageObj.put("totalPage",page.getTotalPage());
+        pageObj.put("totalRecord",page.getTotalRecord());
+        pageObj.put("haxPrePage",page.isHasPrePage());
+        pageObj.put("haxNextPage",page.isHasNextPage());
+        pageObj.put("haxPrePage",page.isHasPrePage());
+        pageObj.put("haxNextPage",page.isHasNextPage());
+        pageObj.put("nextIndex",page.getNextIndex());
+        pageObj.put("preIndex",page.getPreIndex());
+        return pageObj;
+    }
+
+    protected void bind(IdEntity entity,Long userId) throws Exception {
+        if (entity instanceof Tracker) {
+            BeanUtils.setValue(entity, "created", DateFormatUtil.getCurrentDate(true));
             BeanUtils.setValue(entity, "updated", DateFormatUtil.getCurrentDate(true));
             try {
-                RedisUserInfo redisUserInfo= RedisUserSession.getUserInfo(sessionID);
-                if (redisUserInfo != null) {
-                    BeanUtils.setValue(entity, "createdBy", redisUserInfo.getUserId());
-                    BeanUtils.setValue(entity, "updatedBy", redisUserInfo.getUserId());
+                if (userId != null) {
+                    BeanUtils.setValue(entity, "createdBy", userId+"");
+                    BeanUtils.setValue(entity, "updatedBy", userId+"");
+                }else{
+                    BeanUtils.setValue(entity, "createdBy", "system");
+                    BeanUtils.setValue(entity, "updatedBy", "system");
                 }
             }catch (Exception e){
 
@@ -140,6 +163,34 @@ public class BaseBiz {
         } catch (Exception e) {
             BeanUtils.setValue(entity, "useYn", "N");
         }
+    }
+
+    protected boolean isTime(Integer openHour,Integer openMinute,
+                           Integer closeHour,Integer closeMinute) {
+        boolean flag = false;
+        Date date = DateFormatUtil.getCurrentDate(true);
+
+        String dateStr = DateFormatUtil.format(date, DateFormatUtil.YEAR_MONTH_DAY_PATTERN);
+
+        String openStr = dateStr + " " + openHour + ":" + openMinute + ":00";
+        String closeStr = dateStr + " " + closeHour + ":" + closeMinute + ":00";
+        Date openDate = DateFormatUtil.parse(openStr, DateFormatUtil.YMDHMS_PATTERN);
+        Date closeDate = DateFormatUtil.parse(closeStr, DateFormatUtil.YMDHMS_PATTERN);
+
+
+        Date startDate = date;
+        Date endDate = date;
+
+        long currentTimeStart = startDate.getTime();
+        long currentTimeEnd = endDate.getTime();
+        long openDateTime = openDate.getTime();
+        long closeDateTime = closeDate.getTime();
+
+
+        if (currentTimeStart >= openDateTime && currentTimeEnd <= closeDateTime) {
+            flag = true;
+        }
+        return flag;
     }
 
     /**

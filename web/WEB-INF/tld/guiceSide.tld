@@ -253,7 +253,7 @@
 		<body-content>JSP</body-content>
 		<description>RequestSupport tag</description>
 		<attribute>
-			<name>key</name>
+			<name>jwt</name>
 			<required>true</required>
 		</attribute>
 	</tag>

@@ -1,9 +1,6 @@
 package org.guiceside.support.redis;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 
 /**
  * Created by zhenjiaWang on 15/7/31.
@@ -37,13 +34,13 @@ public class SerializeUtil {
      * @param bytes
      * @return
      */
-    public static Object unserialize(byte[] bytes) {
+    public static Serializable unserialize(byte[] bytes) {
         ByteArrayInputStream bais = null;
         try {
             // 反序列化
             bais = new ByteArrayInputStream(bytes);
             ObjectInputStream ois = new ObjectInputStream(bais);
-            return ois.readObject();
+            return (Serializable)ois.readObject();
         } catch (Exception e) {
 
         }

@@ -1,6 +1,7 @@
 package org.guiceside.commons;
 
-import org.apache.commons.lang.StringUtils;
+
+import org.guiceside.commons.lang.StringUtils;
 
 /**
  * @author zhenjia <a href='mailto:zhenjiaWang@gmail.com'>email</a>
@@ -90,7 +91,7 @@ public class FileIdUtils {
 	 * 
 	 * 通过SessionId 混淆生成token唯一标识
 	 * 
-	 * @param sessionId
+	 * @param
 	 * @return 返回混淆生成token唯一标识
 	 */
 	public static String getFileUnId(){

@@ -4,6 +4,9 @@
         <!-- 消费一个服务示例 -->
         <consumer id="myServiceConsumer" interface="oa.mingdao.com.action.MyService"
                   version="for-test" clientTimeout="3000">
+            <methodSpecial name="sum" timeout="2000"/>
+            <methodSpecial name="sum" timeout="2000"/>
+            <methodSpecial name="sum" timeout="2000"/>
         </consumer>
     </group>
 

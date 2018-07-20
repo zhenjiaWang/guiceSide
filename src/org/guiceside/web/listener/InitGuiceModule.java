@@ -1,15 +1,10 @@
 package org.guiceside.web.listener;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Module;
-import com.google.inject.servlet.GuiceServletContextListener;
 import org.apache.log4j.Logger;
-import org.guiceside.GuiceSideConstants;
 import org.guiceside.commons.HSFConfig;
 import org.guiceside.config.Configuration;
-import org.guiceside.config.ConfigurationManager;
 import org.guiceside.guice.module.*;
 import org.guiceside.guice.strategy.AbstractInterceptorStrategy;
 import org.guiceside.guice.strategy.PackageStrategy;
@@ -17,10 +12,7 @@ import org.guiceside.persistence.InitializerPersistence;
 import org.guiceside.persistence.PersistenceFlavor;
 import org.guiceside.persistence.PersistenceService;
 import org.guiceside.support.hsf.ServicesContainer;
-import org.guiceside.web.dispatcher.mapper.ActionResourceManager;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;

@@ -2,14 +2,12 @@ package org.guiceside.web.dispatcher.mapper;
 
 import com.google.inject.Injector;
 import org.apache.log4j.Logger;
-import org.guiceside.commons.FileObject;
 import org.guiceside.commons.FilterObj;
 import org.guiceside.commons.collection.DataUtility;
 import org.guiceside.commons.collection.RequestData;
 import org.guiceside.commons.lang.StringUtils;
 import org.guiceside.config.Configuration;
 
-import javax.servlet.Filter;
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.util.List;

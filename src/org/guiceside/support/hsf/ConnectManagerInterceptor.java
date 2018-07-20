@@ -32,8 +32,11 @@ public class ConnectManagerInterceptor implements MethodInterceptor {
 		Object result=null;
 		if(connectManager!=null){
 			beginWork();
-			result = methodInvocation.proceed();
-			endWork();
+			try{
+				result = methodInvocation.proceed();
+			}finally {
+				endWork();
+			}
 		}
 		return result;
 	}

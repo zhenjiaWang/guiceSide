@@ -1,10 +1,10 @@
 package org.guiceside.guice.module;
 
 import com.google.inject.servlet.ServletModule;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.guiceside.commons.FilterObj;
 import org.guiceside.commons.lang.ClassUtils;
+import org.guiceside.commons.lang.StringUtils;
 import org.guiceside.config.Configuration;
 import org.guiceside.web.annotation.Action;
 import org.guiceside.web.dispatcher.mapper.ActionResourceException;
