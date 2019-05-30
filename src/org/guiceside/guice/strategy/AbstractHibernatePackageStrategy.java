@@ -4,6 +4,7 @@ import com.google.inject.AbstractModule;
 import org.apache.log4j.Logger;
 import org.guiceside.commons.lang.ClassUtils;
 import org.guiceside.commons.lang.StringUtils;
+import org.guiceside.persistence.hibernate.PersistenceJPA;
 import org.hibernate.cfg.Configuration;
 
 import javax.persistence.Entity;
@@ -55,9 +56,36 @@ public abstract class AbstractHibernatePackageStrategy extends AbstractModule im
 		return configuration;
 	}
 
+	public PersistenceJPA getPersistenceJPA() {
+		addHibernateClasses();
+		log.debug("classes ["+classes.size()+"]");
+		PersistenceJPA persistenceJPA=null;
+		try{
+			log.debug("classes [start=======]");
+			persistenceJPA=new PersistenceJPA();
+			log.debug("classes [end=======]");
+			if(classes!=null&&!classes.isEmpty()){
+				log.debug("classes ["+classes.size()+"]");
+				persistenceJPA.setAnnotatedClass(classes);
+				for (Class<?> cls : classes) {
+					log.debug(cls.getClasses()+" is ["+cls.isAnnotationPresent(Entity.class)+"]");
+					if (cls.isAnnotationPresent(Entity.class)) {
+						if(log.isDebugEnabled()){
+							log.debug("addAnnotatedClass ["+cls.getSimpleName()+"] successful");
+						}
+					}
+				}
+			}
+		}catch (Exception e){
+			log.debug("classes [error]");
+			e.printStackTrace();
+		}
+		return persistenceJPA;
+	}
+
 	@Override
 	protected void configure() {
-		binder().bind(Configuration.class).toInstance(getConfiguration());
+		binder().bind(PersistenceJPA.class).toInstance(getPersistenceJPA());
 	}
 	
 	private void addHibernateClasses() {

@@ -10,17 +10,20 @@
     <session-factory>
         <property name="driver_class">com.mysql.jdbc.Driver</property>
         <!-- 连接数据库的URL jdbc:mysql://10.168.8.162:3306/meta -->
-        <property name="url">
-            jdbc:mysql://rdsy467v19300e044l68.mysql.rds.aliyuncs.com:3306/approve?useUnicode=true&amp;characterEncoding=UTF-8
-        </property>
+
         <property name="useUnicode">true</property>
         <property name="characterEncoding">UTF-8</property>
 
+        <property name="url">
+            jdbc:mysql://rm-2ze5h363bqc5g3d9zdo.mysql.rds.aliyuncs.com/mp_mkt?useUnicode=true&amp;characterEncoding=UTF-8&amp;autoReconnect=true&amp;failOverReadOnly=false
+        </property>
+
         <!--连接的登录名-->
-        <property name="username">md_bj_dev</property>
+        <property name="username">bjdev</property>
 
         <!--登录密码-->
-        <property name="password">bjmd2014</property>
+        <property name="password">bjdev_2018</property>
+
 
         <property name="hibernate.connection.provider_class">
             org.guiceside.persistence.hibernate.support.DruidConnectionProvider

@@ -17,25 +17,28 @@ import java.util.concurrent.TimeUnit;
  */
 public class OKHttpUtil {
     private static final OkHttpClient okHttpClient = new OkHttpClient();
-    static{
+
+    static {
         okHttpClient.setConnectTimeout(30, TimeUnit.SECONDS);
     }
+
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    public static String formatParams(List<BasicNameValuePair> params){
+    public static String formatParams(List<BasicNameValuePair> params) {
         return URLEncodedUtils.format(params, "UTF-8");
     }
-    public static String get(String url, Map<String ,String> paramsMap) throws IOException {
+
+    public static String get(String url, Map<String, String> paramsMap) throws IOException {
         String responseStr = null;
-        List<BasicNameValuePair> nameValuePairs=null;
-        if(paramsMap!=null&&!paramsMap.isEmpty()){
-            nameValuePairs=new ArrayList<BasicNameValuePair>();
-            Set<String> keys=paramsMap.keySet();
-            for(String key:keys){
-                BasicNameValuePair basicNameValuePair=new BasicNameValuePair(key,paramsMap.get(key));
+        List<BasicNameValuePair> nameValuePairs = null;
+        if (paramsMap != null && !paramsMap.isEmpty()) {
+            nameValuePairs = new ArrayList<BasicNameValuePair>();
+            Set<String> keys = paramsMap.keySet();
+            for (String key : keys) {
+                BasicNameValuePair basicNameValuePair = new BasicNameValuePair(key, paramsMap.get(key));
                 nameValuePairs.add(basicNameValuePair);
             }
-            url+="?"+formatParams(nameValuePairs);
+            url += "?" + formatParams(nameValuePairs);
         }
 
 
@@ -45,19 +48,20 @@ public class OKHttpUtil {
 
         Response response = okHttpClient.newCall(request).execute();
         if (response.isSuccessful()) {
-            responseStr=response.body().string();
+            responseStr = response.body().string();
         } else {
             throw new IOException("Unexpected code " + response);
         }
-        return  responseStr;
+        return responseStr;
     }
-    public static String post(String url, Map<String ,String> paramsMap) throws IOException {
+
+    public static String post(String url, Map<String, String> paramsMap) throws IOException {
         String responseStr = null;
-        FormEncodingBuilder formEncodingBuilder=new FormEncodingBuilder();
-        if(paramsMap!=null&&!paramsMap.isEmpty()){
-            Set<String> keys=paramsMap.keySet();
-            for(String key:keys){
-                formEncodingBuilder.add(key,paramsMap.get(key));
+        FormEncodingBuilder formEncodingBuilder = new FormEncodingBuilder();
+        if (paramsMap != null && !paramsMap.isEmpty()) {
+            Set<String> keys = paramsMap.keySet();
+            for (String key : keys) {
+                formEncodingBuilder.add(key, paramsMap.get(key));
             }
         }
         RequestBody formBody = formEncodingBuilder.build();
@@ -69,11 +73,11 @@ public class OKHttpUtil {
 
         Response response = okHttpClient.newCall(request).execute();
         if (response.isSuccessful()) {
-            responseStr=response.body().string();
+            responseStr = response.body().string();
         } else {
             throw new IOException("Unexpected code " + response);
         }
-        return  responseStr;
+        return responseStr;
     }
 
 
@@ -88,10 +92,28 @@ public class OKHttpUtil {
 
         Response response = okHttpClient.newCall(request).execute();
         if (response.isSuccessful()) {
-            responseStr=response.body().string();
+            responseStr = response.body().string();
         } else {
             throw new IOException("Unexpected code " + response);
         }
-        return  responseStr;
+        return responseStr;
+    }
+
+    public static byte[] postByte(String url, String jsonData) throws IOException {
+        byte[] responseStr = null;
+        RequestBody body = RequestBody.create(JSON, jsonData);
+
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .build();
+
+        Response response = okHttpClient.newCall(request).execute();
+        if (response.isSuccessful()) {
+            responseStr = response.body().bytes();
+        } else {
+            throw new IOException("Unexpected code " + response);
+        }
+        return responseStr;
     }
 }

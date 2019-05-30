@@ -63,7 +63,6 @@ public class ConnectManagerInterceptor implements MethodInterceptor {
 				.getCurrentSessionFactory())){
 			return;
 		}
-
 		Session session = SessionFactoryHolder.getCurrentSessionFactory()
 				.openSession();
 		ManagedSessionContext.bind(session);
