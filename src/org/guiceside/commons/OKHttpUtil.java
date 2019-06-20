@@ -1,7 +1,6 @@
 package org.guiceside.commons;
 
 import com.squareup.okhttp.*;
-import net.sf.json.JSONObject;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 
@@ -23,6 +22,8 @@ public class OKHttpUtil {
     }
 
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+
+    public static final MediaType XML = MediaType.parse("application/xml; charset=utf-8");
 
     public static String formatParams(List<BasicNameValuePair> params) {
         return URLEncodedUtils.format(params, "UTF-8");
@@ -98,6 +99,25 @@ public class OKHttpUtil {
         }
         return responseStr;
     }
+
+    public static String postXML(String url, String xmlData) throws IOException {
+        String responseStr = null;
+        RequestBody body = RequestBody.create(XML, xmlData);
+
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .build();
+
+        Response response = okHttpClient.newCall(request).execute();
+        if (response.isSuccessful()) {
+            responseStr = response.body().string();
+        } else {
+            throw new IOException("Unexpected code " + response);
+        }
+        return responseStr;
+    }
+
 
     public static byte[] postByte(String url, String jsonData) throws IOException {
         byte[] responseStr = null;
