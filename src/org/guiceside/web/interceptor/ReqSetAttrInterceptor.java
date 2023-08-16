@@ -2,9 +2,9 @@ package org.guiceside.web.interceptor;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.guiceside.commons.lang.BeanUtils;
+import org.guiceside.commons.lang.StringUtils;
 import org.guiceside.web.annotation.ReqSet;
 import org.guiceside.web.context.ActionContext;
 import org.guiceside.web.dispatcher.mapper.ActionMapping;
@@ -62,7 +62,7 @@ public class ReqSetAttrInterceptor implements MethodInterceptor{
 						ReqSet reqSet=field.getAnnotation(ReqSet.class);
 						if(reqSet!=null){
 							//从@ReqSet注释获取fieldName 没有则为默认
-							fieldName=StringUtils.isNotBlank(reqSet.value())?reqSet.value():fieldName;
+							fieldName= StringUtils.isNotBlank(reqSet.value())?reqSet.value():fieldName;
 						}
 						if(log.isDebugEnabled()){
 							log.debug("[" + currentClass.getSimpleName() + "] variable '" + fieldName

@@ -1,10 +1,8 @@
 package org.guiceside.support.hsf;
 
-import com.google.inject.Inject;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.log4j.Logger;
-import org.guiceside.persistence.WorkManager;
 import org.guiceside.persistence.hibernate.SessionFactoryHolder;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -23,7 +21,6 @@ public class ConnectManagerInterceptor implements MethodInterceptor {
 
 	private static final  Logger log=Logger.getLogger(ConnectManagerInterceptor.class);
 
-
 	@ConnectManager
 	private static class Internal {
 	}
@@ -35,8 +32,11 @@ public class ConnectManagerInterceptor implements MethodInterceptor {
 		Object result=null;
 		if(connectManager!=null){
 			beginWork();
-			result = methodInvocation.proceed();
-			endWork();
+			try{
+				result = methodInvocation.proceed();
+			}finally {
+				endWork();
+			}
 		}
 		return result;
 	}
@@ -60,22 +60,22 @@ public class ConnectManagerInterceptor implements MethodInterceptor {
 
 	public void beginWork() {
 		if (ManagedSessionContext.hasBind(SessionFactoryHolder
-				.getCurrentSessionFactory()))
+				.getCurrentSessionFactory())){
 			return;
+		}
 		Session session = SessionFactoryHolder.getCurrentSessionFactory()
 				.openSession();
-
 		ManagedSessionContext.bind(session);
 	}
 
 	public void endWork() {
 		SessionFactory sessionFactory = SessionFactoryHolder
 				.getCurrentSessionFactory();
-		if (!ManagedSessionContext.hasBind(sessionFactory))
+		if (!ManagedSessionContext.hasBind(sessionFactory)){
 			return;
+		}
 		try {
 			Session session = sessionFactory.getCurrentSession();
-
 			session.close();
 		} finally {
 			ManagedSessionContext.unbind(sessionFactory);

@@ -1,6 +1,6 @@
 package org.guiceside.config;
 
-import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -17,10 +17,7 @@ import org.guiceside.web.annotation.Dispatcher;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * <p>
@@ -85,7 +82,6 @@ public class ConfigurationManager {
         configuration.setInterceptors(getInterceptors());
         configuration.setGlobalResults(getGlobalResults());
         configuration.setGlobalExceptionMappings(getGlobalExceptionMapping());
-        configuration.setIgnoreParamsKey(getIgnoreParamsKey());
         /* view Templete*/
         configuration.setFreemarkerContentType(getFreeMarkerContentType());
         configuration.setFreemarkerEncoding(getFreeMarkerEncoding());
@@ -96,23 +92,32 @@ public class ConfigurationManager {
         configuration.setFreemarkerWrapper(getFreeMarkerWrapper());
         configuration.setFreemarkerExceptionHandler(getFreeMarkerExceptionHandler());
         configuration.setFilterObjList(getFilterObjs());
+
+        List<FilterObj> filterObjList = configuration.getFilterObjList();
+        if (filterObjList != null && !filterObjList.isEmpty()) {
+            Map<String, FilterObj> filterObjMap = new HashMap<>();
+            for (FilterObj filterObj : filterObjList) {
+                filterObjMap.put(filterObj.getFilter(), filterObj);
+            }
+            configuration.setFilterObjMap(filterObjMap);
+        }
         return configuration;
     }
 
 
     private HSFConfig getHSFConfig() {
-        HSFConfig hsfConfig =null;
+        HSFConfig hsfConfig = null;
         Element hsfEnable = (Element) document
                 .selectObject("/guiceSide-configuration/hsf/enable");
         if (hsfEnable != null) {
-            hsfConfig =new HSFConfig();
+            hsfConfig = new HSFConfig();
             if (StringUtils.isNotBlank(hsfEnable.getTextTrim())) {
                 if (hsfEnable.getTextTrim().toLowerCase().equals("true")) {
                     hsfConfig.setEnable(true);
                     List<Element> providersValueList = document
                             .selectNodes("/guiceSide-configuration/hsf/providers/value");
                     if (providersValueList != null && !providersValueList.isEmpty()) {
-                        Set<String> resourcesSet=new HashSet<String>();
+                        Set<String> resourcesSet = new HashSet<String>();
                         for (Element el : providersValueList) {
                             if (StringUtils.isNotBlank(el.getTextTrim())) {
                                 resourcesSet.add(el.getTextTrim());
@@ -124,7 +129,7 @@ public class ConfigurationManager {
                     List<Element> consumersValueList = document
                             .selectNodes("/guiceSide-configuration/hsf/consumers/value");
                     if (consumersValueList != null && !consumersValueList.isEmpty()) {
-                        Set<String> resourcesSet=new HashSet<String>();
+                        Set<String> resourcesSet = new HashSet<String>();
                         for (Element el : consumersValueList) {
                             if (StringUtils.isNotBlank(el.getTextTrim())) {
                                 resourcesSet.add(el.getTextTrim());
@@ -351,7 +356,6 @@ public class ConfigurationManager {
     }
 
 
-
     private String getFreeMarkerLoadPath() throws Exception {
         Element freemarkerLoadPath = (Element) document
                 .selectObject("/guiceSide-configuration/freemarker/freemarker-loadPath");
@@ -449,19 +453,7 @@ public class ConfigurationManager {
     }
 
 
-    @SuppressWarnings("unchecked")
-    private String getIgnoreParamsKey() throws Exception {
-        Element ignoreParamsKeyElement = (Element) document
-                .selectObject("/guiceSide-configuration/action/url/ignore-params-key/pattern");
-        String ignoreParamsKey = null;
-        if (ignoreParamsKeyElement != null) {
-            if (StringUtils.isNotBlank(ignoreParamsKeyElement.getTextTrim())) {
-                ignoreParamsKey = ignoreParamsKeyElement.getTextTrim();
-            }
-        }
-        ignoreParamsKeyElement.elements();
-        return ignoreParamsKey;
-    }
+
 
 
     @SuppressWarnings("unchecked")
@@ -472,11 +464,15 @@ public class ConfigurationManager {
         if (filterElementList != null && filterElementList.size() > 0) {
             filterObjList = new ArrayList<FilterObj>();
             for (Element element : filterElementList) {
-                if(StringUtils.isNotBlank(element.elementText("class"))){
-                    if(StringUtils.isNotBlank(element.elementText("urlPattern"))){
-                        FilterObj filterObj=new FilterObj();
+                if (StringUtils.isNotBlank(element.elementText("class"))) {
+                    if (StringUtils.isNotBlank(element.elementText("urlPattern"))) {
+                        FilterObj filterObj = new FilterObj();
                         filterObj.setFilter(element.elementText("class"));
                         filterObj.setUrlPattern(element.elementText("urlPattern"));
+                        if (StringUtils.isNotBlank(element.elementText("exclude"))) {
+                            filterObj.setExclude(element.elementText("exclude"));
+                            filterObj.setExclude(filterObj.getExclude().toLowerCase());
+                        }
                         filterObjList.add(filterObj);
                     }
                 }

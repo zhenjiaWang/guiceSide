@@ -2,6 +2,7 @@ package org.guiceside.web.dispatcher.mapper;
 
 import com.google.inject.Injector;
 import org.apache.log4j.Logger;
+import org.guiceside.commons.FilterObj;
 import org.guiceside.commons.collection.DataUtility;
 import org.guiceside.commons.collection.RequestData;
 import org.guiceside.commons.lang.StringUtils;
@@ -9,6 +10,10 @@ import org.guiceside.config.Configuration;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * <p>
@@ -25,6 +30,8 @@ public class DefaultActionMapper implements ActionMapper {
     private static final Class<?>[] COMMAND_METHOD_PARAM = new Class<?>[]{};
     private static final Logger log = Logger.getLogger(DefaultActionMapper.class);
 
+    final static Pattern pattern = Pattern.compile("\\S*[?]\\S*");
+
     /**
      * 实现ActionMapper.getMapping方法
      *
@@ -34,17 +41,36 @@ public class DefaultActionMapper implements ActionMapper {
 
 
     public ActionMapping getMapping(HttpServletRequest httpServletRequest,
-                                    Configuration configuration)
+                                    Configuration configuration,String filterClassName)
             throws RuntimeException {
 
         ActionMapping actionMapping = new ActionMapping();
         String uri = getUri(httpServletRequest);
+
+
+
         actionMapping.setUri(uri);
         actionMapping.setRefererUrl(httpServletRequest.getHeader("Referer"));
         parse(uri, actionMapping);
         if (StringUtils.isBlank(actionMapping.getName())) {
             return null;
         }
+        String extension=parseSuffix(uri);
+        if(StringUtils.isNotBlank(extension)){
+            actionMapping.setExtension(extension.toLowerCase());
+
+            Map<String,FilterObj> fileObjectMap= configuration.getFilterObjMap();
+            if(fileObjectMap!=null&&!fileObjectMap.isEmpty()){
+                FilterObj filterObj=fileObjectMap.get(filterClassName);
+                List<String> excludeList=filterObj.getExcludeList();
+                if(excludeList!=null&&!excludeList.isEmpty()){
+                    if(excludeList.contains(extension)){
+                        return null;
+                    }
+                }
+            }
+        }
+
         RequestData<String, Object> oDate = actionMapping.getParams();
         RequestData<String, Object> requestData = DataUtility.getRequestData(httpServletRequest);
         if (oDate != null) {
@@ -150,11 +176,10 @@ public class DefaultActionMapper implements ActionMapper {
      * @param actionMapping
      */
     protected void parse(String uri, ActionMapping actionMapping) {
-
+        int start = uri.indexOf("/");
         String namespace = null, name = null;
         String methodName = "execute";
         if (StringUtils.isBlank(actionMapping.getExtension())) {
-            int start = uri.indexOf("/");
             String tempUri = uri.substring(start+1);
             String[] urlBuild=tempUri.split("/");
             if(urlBuild!=null&&urlBuild.length>=2){
@@ -222,5 +247,33 @@ public class DefaultActionMapper implements ActionMapper {
             return true;
         }
         return false;
+    }
+
+    /**
+     * 获取链接的后缀名
+     * @return
+     */
+    private static String parseSuffix(String url) {
+
+        String str=null;
+        Matcher matcher = pattern.matcher(url);
+
+        String[] spUrl = url.toString().split("/");
+        if(spUrl!=null&&spUrl.length>0){
+            int len = spUrl.length;
+            String endUrl = spUrl[len - 1];
+            if(matcher.find()) {
+                String[] spEndUrl = endUrl.split("\\?");
+                str=spEndUrl[0];
+            }else {
+                str=endUrl;
+            }
+            if(str.indexOf(".")!=-1){
+                str=str.split("\\.")[1];
+            }else{
+                str=null;
+            }
+        }
+        return str;
     }
 }

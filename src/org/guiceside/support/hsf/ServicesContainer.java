@@ -1,12 +1,14 @@
 package org.guiceside.support.hsf;
 
 import com.google.inject.Injector;
+import com.taobao.hsf.lightapi.ConsumerService;
 import com.taobao.hsf.lightapi.ServiceFactory;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.guiceside.commons.HSFConfig;
+import org.guiceside.commons.lang.BeanUtils;
 import org.guiceside.commons.lang.ClassUtils;
 import org.guiceside.commons.lang.StringUtils;
 
@@ -32,8 +34,6 @@ public class ServicesContainer {
     private Map<Class, String> serviceMap = new HashMap<Class, String>();
 
 
-
-
     private void initConsumer() {
         System.out.println("****initConsumer*****");
         List<Element> hsfGroupList = document
@@ -46,20 +46,45 @@ public class ServicesContainer {
                     List<Element> serviceConsumerList = el.elements("consumer");
                     if (serviceConsumerList != null && !serviceConsumerList.isEmpty()) {
                         for (Element serviceConsumerEl : serviceConsumerList) {
-                            String id= serviceConsumerEl.attributeValue("id");
-                            String interfaceName= serviceConsumerEl.attributeValue("interface");
-                            String version= serviceConsumerEl.attributeValue("version");
-                            String clientTimeout= serviceConsumerEl.attributeValue("clientTimeout");
-                            if(StringUtils.isNotBlank(id)&&StringUtils.isNotBlank(interfaceName)) {
+                            String id = serviceConsumerEl.attributeValue("id");
+                            String interfaceName = serviceConsumerEl.attributeValue("interface");
+                            String version = serviceConsumerEl.attributeValue("version");
+                            String clientTimeout = serviceConsumerEl.attributeValue("clientTimeout");
+                            if (StringUtils.isNotBlank(id) && StringUtils.isNotBlank(interfaceName)) {
                                 if (StringUtils.isNotBlank(version) && StringUtils.isNotBlank(clientTimeout)) {
-                                    Class aClass=ClassUtils.getClass(interfaceName);
-                                    if(aClass!=null){
-                                        serviceMap.put(aClass,id);
-                                        factory.consumer(id)//参数是一个标识，初始化后，下次只需调用consumer("helloConsumer")即可直接拿出对应服务
+                                    Class aClass = ClassUtils.getClass(interfaceName);
+                                    if (aClass != null) {
+                                        serviceMap.put(aClass, id);
+                                        Integer timeout = null;
+                                        if (StringUtils.isNotBlank(clientTimeout)) {
+                                            timeout = BeanUtils.convertValue(clientTimeout, Integer.class);
+                                        }
+                                        if (timeout == null) {
+                                            timeout = 5000;
+                                        }
+                                        ConsumerService consumerService = factory.consumer(id)//参数是一个标识，初始化后，下次只需调用consumer("helloConsumer")即可直接拿出对应服务
                                                 .service(interfaceName)//服务名 &　接口全类名
-                                                .version(version)//版本号
+                                                .timeout(timeout);
+                                        List<Element> methodSpecialElementList = serviceConsumerEl.elements("methodSpecial");
+                                        if (methodSpecialElementList != null && !methodSpecialElementList.isEmpty()) {
+                                            for (Element methodSpecial : methodSpecialElementList) {
+                                                String methodName = methodSpecial.attributeValue("name");
+                                                String methodTimeoutStr = methodSpecial.attributeValue("timeout");
+                                                Integer methodTimeout = null;
+                                                if (StringUtils.isNotBlank(methodTimeoutStr)) {
+                                                    methodTimeout = BeanUtils.convertValue(methodTimeoutStr, Integer.class);
+                                                }
+                                                if (methodTimeout == null) {
+                                                    methodTimeout = 3000;
+                                                }
+                                                consumerService.methodTimeout(methodName, methodTimeout);
+                                                System.out.println("****" + methodName + "*****" + methodTimeout);
+                                            }
+                                        }
+                                        consumerService.version(version)//版本号
                                                 .group(groupId)//组别
                                                 .subscribe();//消费服务并获得服务的接口，至少要调用service()和version()才可以消费服务
+                                        System.out.println("****" + id + "*****" + interfaceName);
                                     }
                                 }
                             }
@@ -79,21 +104,22 @@ public class ServicesContainer {
             for (Element el : hsfServiceList) {
                 String beanID = el.attributeValue("id");
                 String beanCLASS = el.attributeValue("class");
-                if(StringUtils.isNotBlank(beanCLASS)&&StringUtils.isNotBlank(beanID)){
+                if (StringUtils.isNotBlank(beanCLASS) && StringUtils.isNotBlank(beanID)) {
                     beanMap.put(beanID, beanCLASS);
                     System.out.println("****" + beanID + "*****" + beanCLASS);
                 }
             }
         }
     }
+
     private void initProvider(Injector injector) {
         System.out.println("****initProvider*****");
         List<Element> hsfGroupList = document
                 .selectNodes("/hsf/group");
         if (hsfGroupList != null && !hsfGroupList.isEmpty()) {
             for (Element el : hsfGroupList) {
-                String groupId=el.attributeValue("id");
-                if(StringUtils.isNotBlank(groupId)){
+                String groupId = el.attributeValue("id");
+                if (StringUtils.isNotBlank(groupId)) {
                     System.out.println("groupId**************" + groupId + "******************");
 
                     List<Element> hsfServiceList = el.elements("service");
@@ -101,7 +127,7 @@ public class ServicesContainer {
                         for (Element elService : hsfServiceList) {
                             String beanID = elService.attributeValue("id");
                             String beanCLASS = elService.attributeValue("class");
-                            if(StringUtils.isNotBlank(beanCLASS)&&StringUtils.isNotBlank(beanID)){
+                            if (StringUtils.isNotBlank(beanCLASS) && StringUtils.isNotBlank(beanID)) {
                                 beanMap.put(beanID, beanCLASS);
                                 System.out.println("****" + beanID + "*****" + beanCLASS);
                             }
@@ -111,25 +137,33 @@ public class ServicesContainer {
                     List<Element> serviceProviderList = el.elements("provider");
                     if (serviceProviderList != null && !serviceProviderList.isEmpty()) {
                         for (Element serviceProviderEl : serviceProviderList) {
-                            String id= serviceProviderEl.attributeValue("id");
-                            String interfaceName= serviceProviderEl.attributeValue("interface");
-                            String version= serviceProviderEl.attributeValue("version");
-                            String clientTimeout= serviceProviderEl.attributeValue("clientTimeout");
-                            String serializeType= serviceProviderEl.attributeValue("serializeType");
-                            String enableTXC= serviceProviderEl.attributeValue("enableTXC");
-                            String ref= serviceProviderEl.attributeValue("ref");
-                            if(StringUtils.isNotBlank(id)&&StringUtils.isNotBlank(interfaceName)){
-                                if(StringUtils.isNotBlank(version)&&StringUtils.isNotBlank(ref)){
-                                    String beanClass=beanMap.get(ref);
-                                    if(StringUtils.isNotBlank(beanClass)){
-                                        Class aClass=ClassUtils.getClass(beanClass);
-                                        if(aClass!=null){
-                                            Object serviceImp= injector.getInstance(aClass);
+                            String id = serviceProviderEl.attributeValue("id");
+                            String interfaceName = serviceProviderEl.attributeValue("interface");
+                            String version = serviceProviderEl.attributeValue("version");
+                            String clientTimeout = serviceProviderEl.attributeValue("clientTimeout");
+                            String serializeType = serviceProviderEl.attributeValue("serializeType");
+                            String enableTXC = serviceProviderEl.attributeValue("enableTXC");
+                            String ref = serviceProviderEl.attributeValue("ref");
+                            if (StringUtils.isNotBlank(id) && StringUtils.isNotBlank(interfaceName)) {
+                                if (StringUtils.isNotBlank(version) && StringUtils.isNotBlank(ref)) {
+                                    String beanClass = beanMap.get(ref);
+                                    if (StringUtils.isNotBlank(beanClass)) {
+                                        Class aClass = ClassUtils.getClass(beanClass);
+                                        if (aClass != null) {
+                                            Object serviceImp = injector.getInstance(aClass);
+                                            Integer timeout = null;
+                                            if (StringUtils.isNotBlank(clientTimeout)) {
+                                                timeout = BeanUtils.convertValue(clientTimeout, Integer.class);
+                                            }
+                                            if (timeout == null) {
+                                                timeout = 5000;
+                                            }
                                             factory.provider(id)//参数是一个标识，初始化后，下次只需调用provider("helloProvider")即可拿出对应服务
                                                     .service(interfaceName)//服务名 & 接口全类名
+                                                    .clientTimeout(timeout)
                                                     .version(version)//版本号
                                                     .group(groupId)//组别
-                                                            // .writeMode("unit",0) //设置单元化服务的writeMode,非unit服务第二个参数随意
+                                                    // .writeMode("unit",0) //设置单元化服务的writeMode,非unit服务第二个参数随意
                                                     .impl(serviceImp)//对应的服务实现
                                                     .publish();//发布服务，至少要调用service()和version()才可以发布服务
                                         }
@@ -143,7 +177,7 @@ public class ServicesContainer {
         }
     }
 
-    public void init(HSFConfig hsfConfig,Injector injector){
+    public void init(HSFConfig hsfConfig, Injector injector) {
         saxReader = new SAXReader();
         Set<String> providers = hsfConfig.getProviders();
         if (providers != null && !providers.isEmpty()) {
@@ -179,8 +213,8 @@ public class ServicesContainer {
             }
         }
     }
-    public ServicesContainer() {
 
+    public ServicesContainer() {
 
 
 //        factory.provider("helloProvider")//参数是一个标识，初始化后，下次只需调用provider("helloProvider")即可拿出对应服务
@@ -204,7 +238,7 @@ public class ServicesContainer {
         return factory;
     }
 
-    public String getServiceName(Class classKey){
+    public String getServiceName(Class classKey) {
         return serviceMap.get(classKey);
     }
 }

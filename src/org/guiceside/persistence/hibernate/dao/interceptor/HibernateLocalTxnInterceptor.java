@@ -9,6 +9,7 @@ import org.guiceside.persistence.hibernate.SessionFactoryHolder;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.resource.transaction.spi.TransactionStatus;
 
 import java.lang.reflect.Method;
 
@@ -30,8 +31,7 @@ public class HibernateLocalTxnInterceptor implements MethodInterceptor {
 	public Object invoke(MethodInvocation methodInvocation) throws Throwable {
 		Session session = SessionFactoryHolder.getCurrentSessionFactory()
 				.getCurrentSession();
-
-		if (session.getTransaction().isActive()) {
+		if (session.getTransaction().getStatus().equals(TransactionStatus.ACTIVE)) {
 			return methodInvocation.proceed();
 		}
 

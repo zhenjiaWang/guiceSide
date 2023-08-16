@@ -9,6 +9,7 @@ import org.guiceside.persistence.PersistenceFlavor;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -46,9 +47,6 @@ public class Configuration implements Serializable {
 
     private String freemarkerExceptionHandler;
 
-
-    private String ignoreParamsKey;
-
     private Set<String> actionPackages;
 
     private Set<String> hibernatePackages;
@@ -63,6 +61,8 @@ public class Configuration implements Serializable {
     private List<AbstractInterceptorStrategy> interceptors;
 
     private List<FilterObj> filterObjList;
+
+    private Map<String,FilterObj> filterObjMap;
 
     public PersistenceFlavor getPersistenceFlavor() {
         return persistenceFlavor;
@@ -181,17 +181,18 @@ public class Configuration implements Serializable {
         this.hibernatePackages = hibernatePackages;
     }
 
-    public String getIgnoreParamsKey() {
-        return ignoreParamsKey;
-    }
-
-    public void setIgnoreParamsKey(String ignoreParamsKey) {
-        this.ignoreParamsKey = ignoreParamsKey;
-    }
-
     public List<FilterObj> getFilterObjList() {
         return filterObjList;
     }
+
+    public Map<String, FilterObj> getFilterObjMap() {
+        return filterObjMap;
+    }
+
+    public void setFilterObjMap(Map<String, FilterObj> filterObjMap) {
+        this.filterObjMap = filterObjMap;
+    }
+
 
     public void setFilterObjList(List<FilterObj> filterObjList) {
         this.filterObjList = filterObjList;

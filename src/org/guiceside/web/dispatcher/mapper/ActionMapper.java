@@ -23,7 +23,7 @@ public interface ActionMapper {
 	 * @return 返回ActionMapping JavaBean
 	 * @throws RuntimeException
 	 */
-	ActionMapping getMapping(HttpServletRequest httpServletRequest, Configuration configuration) throws RuntimeException;
+	ActionMapping getMapping(HttpServletRequest httpServletRequest, Configuration configuration, String filterClassName) throws RuntimeException;
 
     void createAction(ActionMapping actionMapping, Injector injector);
 }

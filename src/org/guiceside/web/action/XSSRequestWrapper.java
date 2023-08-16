@@ -1,6 +1,6 @@
 package org.guiceside.web.action;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.guiceside.commons.lang.StringUtils;
 import org.owasp.validator.html.*;
 
@@ -81,7 +81,7 @@ public class XSSRequestWrapper extends HttpServletRequestWrapper {
         try {
             //CleanResults cr = antiSamy.scan(dirtyInput, policyFilePath);
             final CleanResults cr = antiSamy.scan(value, policy);
-            String str= StringEscapeUtils.unescapeHtml(cr.getCleanHTML());
+            String str= StringEscapeUtils.unescapeHtml3(cr.getCleanHTML());
             if(StringUtils.isNotBlank(str)){
                 str=str.replaceAll((antiSamy.scan("&nbsp;",policy)).getCleanHTML(),"");
             }else{

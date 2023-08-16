@@ -6,10 +6,14 @@ import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
 import net.sf.json.util.CycleDetectionStrategy;
 import org.guiceside.commons.lang.BeanUtils;
+import org.guiceside.commons.lang.DateFormatUtil;
 import org.guiceside.commons.lang.StringUtils;
+import org.guiceside.persistence.entity.IdEntity;
+import org.guiceside.persistence.entity.IdEntityPK;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +29,102 @@ import java.util.Map;
  * @since JDK1.5
  */
 public class JsonUtils {
+
+
+    public static JSONObject formIdEntity(Object obj) {
+        JSONObject jsonObject = packObj(obj, 1);
+        return jsonObject;
+    }
+
+    private static JSONObject packObj(Object obj, int level) {
+        if (obj == null) {
+            return null;
+        }
+        JSONObject jsonObject = null;
+        try {
+            Class<?> claz = obj.getClass();
+            try {
+                Field[] fs = claz.getDeclaredFields();
+                if (fs != null && fs.length > 0) {
+                    jsonObject = new JSONObject();
+                    for (Field field : fs) {
+                        if(field.getName().equals("serialVersionUID")){
+                            continue;
+                        }
+                        field.setAccessible(true);
+                        boolean identity = IdEntity.class.isAssignableFrom(field.getType());
+                        Object fieldValue = null;
+                        if (!identity) {
+                            fieldValue = field.get(obj);
+                            Class fieldTypeClass = field.getType();
+                            if (fieldTypeClass != null) {
+                                if (fieldValue != null) {
+                                    if (fieldTypeClass.equals(Date.class)) {
+                                        Date dateObj = (Date) fieldValue;
+                                        String dateStr = DateFormatUtil.format(dateObj, DateFormatUtil.YMDHMS_PATTERN);
+                                        if (StringUtils.isNotBlank(dateStr)) {
+                                            if(dateStr.endsWith("00:00:00")){
+                                                dateStr = DateFormatUtil.format(dateObj, DateFormatUtil.YEAR_MONTH_DAY_PATTERN);
+                                            }
+                                        }
+                                        fieldValue=dateStr;
+                                    }else if (fieldTypeClass.equals(Long.class)) {
+                                        fieldValue=fieldValue.toString();
+                                    }else if (IdEntityPK.class.isAssignableFrom(field.getType())) {
+                                        Object pkObj=fieldValue;
+                                        Class<?> clazPK = pkObj.getClass();
+                                        if(clazPK!=null){
+                                            Field[] fsPK = clazPK.getDeclaredFields();
+                                            if (fsPK != null && fsPK.length > 0) {
+                                                JSONObject pkJSON = new JSONObject();
+                                                for (Field fieldPK : fsPK) {
+                                                    fieldPK.setAccessible(true);
+                                                    Object fieldValuePK = fieldPK.get(pkObj);
+                                                    if(fieldValuePK!=null){
+                                                        pkJSON.put(fieldPK.getName(),fieldValuePK.toString());
+                                                    }else{
+                                                        pkJSON.put(fieldPK.getName(),"");
+                                                    }
+                                                }
+                                                fieldValue=pkJSON;
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    if (fieldTypeClass.equals(String.class)) {
+                                        fieldValue="";
+                                    } else if (fieldTypeClass.equals(Double.class)) {
+                                        fieldValue=0.00d;
+                                    } else if (fieldTypeClass.equals(Long.class)) {
+                                        fieldValue=0l;
+                                    } else if (fieldTypeClass.equals(Integer.class)) {
+                                        fieldValue=1;
+                                    } else if (fieldTypeClass.equals(Date.class)) {
+                                        fieldValue="";
+                                    }
+                                }
+                            }
+                        } else {
+                            if (level >= 1) {
+                                fieldValue = field.get(obj);
+                                fieldValue = packObj(fieldValue, level - 1);
+                            }
+                        }
+                        jsonObject.put(field.getName(), fieldValue);
+                    }
+                }
+            } catch (Exception e) {
+            }
+        } catch (Exception e) {
+        }
+        return jsonObject;
+    }
+
+    public static JSONObject formIdEntity(Object obj, int level) {
+        JSONObject jsonObject = packObj(obj, level);
+        return jsonObject;
+    }
+
 
     private static String aliasField(String field) {
         if (StringUtils.isNotBlank(field)) {
@@ -83,19 +183,20 @@ public class JsonUtils {
     }
 
     public static List<JSONObject> formListInclude(List<Object> objList, JsonDataProcessor jsonDataProcessor, Map<String, String> keyMap,
-                                               String... includeField) {
-        List<JSONObject> objectList=null;
-        if(objList!=null&&!objList.isEmpty()){
-            objectList=new ArrayList<JSONObject>();
-            for(Object obj:objList){
-                JSONObject o=formObjectInclude(obj,jsonDataProcessor,keyMap,includeField);
-                if(o!=null){
+                                                   String... includeField) {
+        List<JSONObject> objectList = null;
+        if (objList != null && !objList.isEmpty()) {
+            objectList = new ArrayList<JSONObject>();
+            for (Object obj : objList) {
+                JSONObject o = formObjectInclude(obj, jsonDataProcessor, keyMap, includeField);
+                if (o != null) {
                     objectList.add(o);
                 }
             }
         }
         return objectList;
     }
+
     public static JSONObject formObjectInclude(Object obj, JsonDataProcessor jsonDataProcessor, Map<String, String> keyMap,
                                                String... includeField) {
         JSONObject jsonObject = null;

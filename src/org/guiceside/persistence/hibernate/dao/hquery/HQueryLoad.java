@@ -41,8 +41,24 @@ public class HQueryLoad extends HQueryCore {
     /**
      * 持久化对象
      */
+
     public void save() {
         invoke(Persistent.SAVEORUPDATE);
+        clean();
+    }
+
+    public void save(Persistent persistent) {
+        invoke(persistent);
+        clean();
+    }
+
+    public void insert() {
+        invoke(Persistent.SAVE);
+        clean();
+    }
+
+    public void update() {
+        invoke(Persistent.UPDATE);
         clean();
     }
 
@@ -67,6 +83,17 @@ public class HQueryLoad extends HQueryCore {
         clean();
     }
 
+    public void insert(HQueryCallBack hQueryCallBack) {
+        setCurrentHQueryCallBack(hQueryCallBack);
+        invoke(Persistent.SAVE);
+        clean();
+    }
+
+    public void update(HQueryCallBack hQueryCallBack) {
+        setCurrentHQueryCallBack(hQueryCallBack);
+        invoke(Persistent.UPDATE);
+        clean();
+    }
    
 
     @Override

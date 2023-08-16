@@ -28,11 +28,13 @@
     <filters>
         <filter>
             <class>org.guiceside.web.dispatcher.SessionInViewFilter</class>
-            <urlPattern>/*</urlPattern>
+            <urlPattern>/webapi/*,/sys/*</urlPattern>
+            <exclude></exclude>
         </filter>
         <filter>
             <class>org.guiceside.web.dispatcher.FilterDispatcher</class>
-            <urlPattern>/*</urlPattern>
+            <urlPattern>/sys/*</urlPattern>
+            <exclude></exclude>
         </filter>
     </filters>
     <action>
@@ -72,7 +74,7 @@
         </module>
     </interceptor>
     <hsf>
-        <enable>true</enable>
+        <enable>false</enable>
         <providers>
             <value>hsf-providers-guice.xml</value>
         </providers>

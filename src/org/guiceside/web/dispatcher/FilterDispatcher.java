@@ -93,7 +93,7 @@ public class FilterDispatcher implements Filter {
 
         ActionMapper actionMapper = ActionMapperFactory.getActionMapper();
         ActionMapping actionMapping = actionMapper.getMapping(
-                httpServletRequest, configuration);
+                httpServletRequest, configuration,FilterDispatcher.class.getName());
         if (actionMapping != null) {
             ActionContext previous = localActionContext.get();
             DispatcherUtils du = DispatcherUtils.getInstance();

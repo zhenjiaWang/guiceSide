@@ -4,11 +4,13 @@ import org.guiceside.persistence.entity.IdEntity;
 import org.guiceside.persistence.entity.Tracker;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
 
 /**
  * Created by wangjia on 14-7-29.
  */
+@XmlRootElement
 @Entity
 @Table(name = "SYS_PROVINCE")
 public class SysProvince extends IdEntity implements Tracker {

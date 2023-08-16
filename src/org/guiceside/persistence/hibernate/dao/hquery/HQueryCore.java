@@ -13,6 +13,7 @@ import org.hibernate.Criteria;
 import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Projection;
 import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 import org.hibernate.internal.CriteriaImpl;
 import org.hibernate.transform.ResultTransformer;
 
@@ -81,6 +82,12 @@ public class HQueryCore extends HQuerySupport {
 
 
     private int totalRecord(final Criteria criteria) {
+//        List<Long> resultList = criteria.setProjection(Projections.rowCount()).u();
+//        int totalCount=0;
+//        if(resultList!=null&&!resultList.isEmpty()){
+//            totalCount= resultList.get(0).intValue();
+//        }
+//        criteria.
         CriteriaImpl impl = (CriteriaImpl) criteria;
         Projection projection = impl.getProjection();
         ResultTransformer transformer = impl.getResultTransformer();
@@ -318,6 +325,15 @@ public class HQueryCore extends HQuerySupport {
                 return (T) value;
             }
         }else{
+            if(value==null){
+                if(type.toString().equals(Long.class.toString())){
+                    value=-1l;
+                }else  if(type.toString().equals(Integer.class.toString())){
+                    value=-1;
+                }else  if(type.toString().equals(Double.class.toString())){
+                    value=0.0d;
+                }
+            }
             return (T) value;
         }
     }

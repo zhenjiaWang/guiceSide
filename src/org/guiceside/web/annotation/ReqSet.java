@@ -8,8 +8,8 @@ import java.lang.annotation.Target;
 /**
  * <p>
  * request.setAttribute快截注解<br/>
- * value()属性默认为""时以当前显示声明@ReqSet的Filed的名称作为setAttribute key<br/>
- * value()属性不为""时,以value值作为setAttribute key
+ * value()属性默认为""时以当前显示声明@ReqSet的Filed的名称作为setAttribute jwt<br/>
+ * value()属性不为""时,以value值作为setAttribute jwt
  * </p>
  * @author zhenjia <a href='mailto:zhenjiaWang@gmail.com'>email</a>
  * @since JDK1.5
@@ -20,7 +20,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ReqSet {
 	/**
-	 * 指定setAttribute key
+	 * 指定setAttribute jwt
 	 * @return 返回指定key
 	 */
 	String value() default "";
