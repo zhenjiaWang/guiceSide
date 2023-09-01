@@ -44,7 +44,7 @@ public abstract class AbstractHibernatePackageStrategy extends AbstractModule im
 					if (cls.isAnnotationPresent(Entity.class)) {
 						configuration.addAnnotatedClass(cls);
 						if(log.isDebugEnabled()){
-							log.debug("addAnnotatedClass ["+cls.getSimpleName()+"] successful");
+							log.debug("getConfiguration addAnnotatedClass ["+cls.getSimpleName()+"] successful");
 						}
 					}
 				}
@@ -71,7 +71,7 @@ public abstract class AbstractHibernatePackageStrategy extends AbstractModule im
 					log.debug(cls.getClasses()+" is ["+cls.isAnnotationPresent(Entity.class)+"]");
 					if (cls.isAnnotationPresent(Entity.class)) {
 						if(log.isDebugEnabled()){
-							log.debug("addAnnotatedClass ["+cls.getSimpleName()+"] successful");
+							log.debug("getPersistenceJPA addAnnotatedClass ["+cls.getSimpleName()+"] successful");
 						}
 					}
 				}

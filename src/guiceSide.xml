@@ -4,7 +4,7 @@
         <provider>hibernate</provider>
         <hibernate>
             <packages>
-                <value>oa.mingdao.com.entity</value>
+                <value>oa.mingdao.com.entity.sys</value>
             </packages>
         </hibernate>
     </persistence>
@@ -26,15 +26,15 @@
 
 
     <filters>
-        <filter>
-            <class>org.guiceside.web.dispatcher.SessionInViewFilter</class>
-            <urlPattern>/webapi/*,/sys/*</urlPattern>
-            <exclude></exclude>
-        </filter>
+<!--        <filter>-->
+<!--            <class>org.guiceside.web.dispatcher.SessionInViewFilter</class>-->
+<!--            <urlPattern>/webapi/*,/sys/*</urlPattern>-->
+<!--            <exclude></exclude>-->
+<!--        </filter>-->
         <filter>
             <class>org.guiceside.web.dispatcher.FilterDispatcher</class>
-            <urlPattern>/sys/*</urlPattern>
-            <exclude></exclude>
+            <urlPattern>/*</urlPattern>
+            <exclude>jsp,html,rar,exe,jpg,gif,css,js</exclude>
         </filter>
     </filters>
     <action>
@@ -59,7 +59,7 @@
             </ignore-params-key>
         </url>
         <packages>
-            <value>oa.mingdao.com.action</value>
+            <value></value>
         </packages>
     </action>
     <interceptor>

@@ -57,7 +57,7 @@ public class DefaultGuiceSideListener extends GuiceServletContextListener {
             log.debug("load guiceSide.xml done");
         }
         super.contextInitialized(servletContextEvent);
-        InitGuiceModule.startHSF(webConfiguration, injector);
+        //InitGuiceModule.startHSF(webConfiguration, injector);
     }
 
     /**

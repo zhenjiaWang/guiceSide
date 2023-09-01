@@ -43,7 +43,7 @@ public class InitGuiceModule {
     }
 
     public static List<AbstractModule> buildModule(Configuration webConfiguration) {
-        boolean enablePersistence = false;
+
         List<AbstractModule> guiceModuleList = new ArrayList<AbstractModule>();
 
         guiceModuleList.add(new GuiceSideModule(webConfiguration));
@@ -67,11 +67,9 @@ public class InitGuiceModule {
             if (log.isDebugEnabled()) {
                 log.debug("Install " + flavor + " Module Successful");
             }
-            enablePersistence = true;
-            if (persistenceModule != null) {
-                guiceModuleList.add(persistenceModule);
-            }
-            log.debug("HibernatePackeages " + webConfiguration.getHibernatePackages());
+
+            guiceModuleList.add(persistenceModule);
+            log.debug("HibernatePackages " + webConfiguration.getHibernatePackages());
             builderPackages(guiceModuleList, webConfiguration.getHibernatePackages(), new HibernateModule());
 
             guiceModuleList.add(new HibernateLocalTxnModule());
@@ -83,18 +81,15 @@ public class InitGuiceModule {
             if (log.isDebugEnabled()) {
                 log.debug("Install ThreadSafeInterceptorModule Module Successful");
             }
-            if (enablePersistence) {
-                guiceModuleList.add(new AbstractModule() {
-                    @Override
-                    protected void configure() {
-                        bind(InitializerPersistence.class).asEagerSingleton();
-                        if (log.isDebugEnabled()) {
-                            log.debug("Initialization  StartUp");
-                        }
+            guiceModuleList.add(new AbstractModule() {
+                @Override
+                protected void configure() {
+                    bind(InitializerPersistence.class).asEagerSingleton();
+                    if (log.isDebugEnabled()) {
+                        log.debug("Initialization  StartUp");
                     }
-                });
-
-            }
+                }
+            });
         }
 
 
@@ -105,8 +100,8 @@ public class InitGuiceModule {
                 servicesContainer = new ServicesContainer();
                 log.debug("Initialization  HSF Service");
                 guiceModuleList.add(new HSFModule(servicesContainer));
-                guiceModuleList.add(new ConnectManagerModule());
             }
+            guiceModuleList.add(new ConnectManagerModule());
         }
         return guiceModuleList;
     }

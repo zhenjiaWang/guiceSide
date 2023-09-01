@@ -1,5 +1,6 @@
 package org.guiceside.web.listener;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
 import com.google.inject.servlet.GuiceServletContextListener;
@@ -63,12 +64,12 @@ public class JerseyGuiceSideListener extends GuiceServletContextListener {
             log.debug("load guiceSide.xml done");
         }
         Stage stage = this.stage();
-        List modules = InitGuiceModule.buildModule(webConfiguration);
+        List<AbstractModule> modules = InitGuiceModule.buildModule(webConfiguration);
         this.injector = BootstrapUtils.newInjector(this.locator, stage, modules);
         BootstrapUtils.install(this.locator);
 
         super.contextInitialized(servletContextEvent);
-        InitGuiceModule.startHSF(webConfiguration, injector);
+        //InitGuiceModule.startHSF(webConfiguration, injector);
     }
 
     /**

@@ -15,14 +15,12 @@
         <property name="characterEncoding">UTF-8</property>
 
         <property name="url">
-            jdbc:mysql://rm-2ze5h363bqc5g3d9zdo.mysql.rds.aliyuncs.com/mp_mkt?useUnicode=true&amp;characterEncoding=UTF-8&amp;autoReconnect=true&amp;failOverReadOnly=false
-        </property>
-
+            jdbc:mysql://localhost:3306/enterpriseCircle?useSSL=false&amp;useUnicode=true&amp;characterEncoding=UTF-8&amp;autoReconnect=true&amp;failOverReadOnly=false        </property>
         <!--连接的登录名-->
-        <property name="username">bjdev</property>
+        <property name="username">root</property>
 
         <!--登录密码-->
-        <property name="password">bjdev_2018</property>
+        <property name="password">wangzhenjia1215</property>
 
 
         <property name="hibernate.connection.provider_class">

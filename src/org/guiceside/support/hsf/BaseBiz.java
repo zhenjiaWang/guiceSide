@@ -1,6 +1,5 @@
 package org.guiceside.support.hsf;
 
-import com.google.inject.Inject;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import ognl.OgnlException;
@@ -14,24 +13,18 @@ import org.guiceside.commons.lang.StringUtils;
 import org.guiceside.persistence.entity.IdEntity;
 import org.guiceside.persistence.entity.Tracker;
 import org.guiceside.support.converter.DateConverter;
-import org.guiceside.support.redis.RedisPoolProvider;
-import org.guiceside.support.redis.session.*;
-import redis.clients.jedis.JedisPool;
 
-import javax.servlet.http.HttpSession;
 import java.util.Date;
 import java.util.List;
 
 public class BaseBiz {
 
-    @Inject
-    private HSFServiceFactory hsfServiceFactory;
-
-    public <T> T getService(Class<T> serviceClass) throws Exception {
-        return hsfServiceFactory.consumer(serviceClass);
-    }
-
-
+//    @Inject
+//    private HSFServiceFactory hsfServiceFactory;
+//
+//    public <T> T getService(Class<T> serviceClass) throws Exception {
+//        return hsfServiceFactory.consumer(serviceClass);
+//    }
 
 
     protected String get(Object entity, String property) {
@@ -110,48 +103,49 @@ public class BaseBiz {
         return result;
     }
 
-    protected JSONArray buildList2Array(List<IdEntity> idEntityList){
-        JSONArray jsonArray=null;
-        if(idEntityList!=null&&!idEntityList.isEmpty()){
-            jsonArray=new JSONArray();
-            for(IdEntity idEntity:idEntityList){
-                JSONObject btcInObj= JsonUtils.formIdEntity(idEntity);
+    protected JSONArray buildList2Array(List<IdEntity> idEntityList) {
+        JSONArray jsonArray = null;
+        if (idEntityList != null && !idEntityList.isEmpty()) {
+            jsonArray = new JSONArray();
+            for (IdEntity idEntity : idEntityList) {
+                JSONObject btcInObj = JsonUtils.formIdEntity(idEntity);
                 jsonArray.add(btcInObj);
             }
         }
         return jsonArray;
     }
-    protected  JSONObject buildPage2Obj(Page page){
-        if(page==null){
+
+    protected JSONObject buildPage2Obj(Page page) {
+        if (page == null) {
             return null;
         }
-        JSONObject pageObj=new JSONObject();
-        pageObj.put("currentPage",page.getCurrentPage());
-        pageObj.put("everyPage",page.getEveryPage());
-        pageObj.put("totalPage",page.getTotalPage());
-        pageObj.put("totalRecord",page.getTotalRecord());
-        pageObj.put("haxPrePage",page.isHasPrePage());
-        pageObj.put("haxNextPage",page.isHasNextPage());
-        pageObj.put("haxPrePage",page.isHasPrePage());
-        pageObj.put("haxNextPage",page.isHasNextPage());
-        pageObj.put("nextIndex",page.getNextIndex());
-        pageObj.put("preIndex",page.getPreIndex());
+        JSONObject pageObj = new JSONObject();
+        pageObj.put("currentPage", page.getCurrentPage());
+        pageObj.put("everyPage", page.getEveryPage());
+        pageObj.put("totalPage", page.getTotalPage());
+        pageObj.put("totalRecord", page.getTotalRecord());
+        pageObj.put("haxPrePage", page.isHasPrePage());
+        pageObj.put("haxNextPage", page.isHasNextPage());
+        pageObj.put("haxPrePage", page.isHasPrePage());
+        pageObj.put("haxNextPage", page.isHasNextPage());
+        pageObj.put("nextIndex", page.getNextIndex());
+        pageObj.put("preIndex", page.getPreIndex());
         return pageObj;
     }
 
-    protected void bind(IdEntity entity,Long userId) throws Exception {
+    protected void bind(IdEntity entity, Long userId) throws Exception {
         if (entity instanceof Tracker) {
             BeanUtils.setValue(entity, "created", DateFormatUtil.getCurrentDate(true));
             BeanUtils.setValue(entity, "updated", DateFormatUtil.getCurrentDate(true));
             try {
                 if (userId != null) {
-                    BeanUtils.setValue(entity, "createdBy", userId+"");
-                    BeanUtils.setValue(entity, "updatedBy", userId+"");
-                }else{
+                    BeanUtils.setValue(entity, "createdBy", userId + "");
+                    BeanUtils.setValue(entity, "updatedBy", userId + "");
+                } else {
                     BeanUtils.setValue(entity, "createdBy", "system");
                     BeanUtils.setValue(entity, "updatedBy", "system");
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
 
             }
         }
@@ -165,8 +159,8 @@ public class BaseBiz {
         }
     }
 
-    protected boolean isTime(Integer openHour,Integer openMinute,
-                           Integer closeHour,Integer closeMinute) {
+    protected boolean isTime(Integer openHour, Integer openMinute,
+                             Integer closeHour, Integer closeMinute) {
         boolean flag = false;
         Date date = DateFormatUtil.getCurrentDate(true);
 
