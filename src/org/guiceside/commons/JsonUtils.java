@@ -94,11 +94,11 @@ public class JsonUtils {
                                     if (fieldTypeClass.equals(String.class)) {
                                         fieldValue="";
                                     } else if (fieldTypeClass.equals(Double.class)) {
-                                        fieldValue=0.00d;
+                                        fieldValue="";
                                     } else if (fieldTypeClass.equals(Long.class)) {
-                                        fieldValue=0l;
+                                        fieldValue="";
                                     } else if (fieldTypeClass.equals(Integer.class)) {
-                                        fieldValue=1;
+                                        fieldValue="";
                                     } else if (fieldTypeClass.equals(Date.class)) {
                                         fieldValue="";
                                     }
